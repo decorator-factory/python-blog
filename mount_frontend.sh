@@ -7,5 +7,6 @@ cd frontend \
 && npm install \
 && npm run build \
 && cd .. \
+&& mkdir -p server/static \
 && rm -rf server/static/* \
 && cp -r frontend/public/* server/static/ \
