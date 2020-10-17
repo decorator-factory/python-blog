@@ -1,0 +1,11 @@
+?start: expr
+?expr: string | integer | sexpr | name
+integer: /[-+]?[0-9]+/
+string: ESCAPED_STRING
+name: /(?![-+]?[0-9])[-_$+*\/a-zA-Z0-9]+/
+sexpr: "(" expr+ ")"
+COMMENT: /;.*$/
+%import common.WS
+%ignore WS
+%ignore COMMENT
+%import common.ESCAPED_STRING
