@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Frontend
+frontend/node_modules/
+frontend/package-lock.json
+frontend/public/build/
+server/static/*
+
+# VSCode
+.vscode
