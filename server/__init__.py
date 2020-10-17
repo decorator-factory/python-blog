@@ -58,7 +58,7 @@ async def get_post(uid: int) -> Post:
 
 
 
-@app.get("/posts/", response_model=List[Post])
+@app.get("/posts", response_model=List[Post])
 async def index_posts() -> List[Post]:
     conn = await get_sqlite_connection()
     async with conn.execute(
