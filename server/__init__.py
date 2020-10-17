@@ -2,6 +2,7 @@ from typing import List, Optional
 import aiosqlite
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
+from fastapi.staticfiles import StaticFiles
 from .posts import Post
 
 
@@ -68,3 +69,6 @@ async def index_posts() -> List[Post]:
             post = Post(uid=row["uid"], title=row["title"], content=row["content"])
             posts.append(post)
         return posts
+
+
+app.mount("/", StaticFiles(directory="server/static"))
