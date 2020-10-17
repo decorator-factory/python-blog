@@ -71,4 +71,4 @@ async def index_posts() -> List[Post]:
         return posts
 
 
-app.mount("/", StaticFiles(directory="server/static"))
+app.mount("/", StaticFiles(directory="frontend/public"))
