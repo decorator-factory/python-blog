@@ -1,6 +1,13 @@
 <script>
     import PostCard from './PostCard.svelte';
 
+    const API_ROOT = '';
+
+    const getPosts = () =>
+        fetch(`${API_ROOT}/posts`)
+        .then(r => r.json())
+    ;
+
     const post = {
         uid: 42,
         title: 'Hello, world!',
@@ -13,14 +20,13 @@
 </header>
 <main>
     <div class="posts">
-        <PostCard {post}/>
-        <PostCard {post}/>
-        <PostCard {post}/>
-        <PostCard {post}/>
-        <PostCard {post}/>
-        <PostCard {post}/>
-        <PostCard {post}/>
-        <PostCard {post}/>
+        {#await getPosts()}
+            waiting...
+        {:then posts}
+            {#each posts as post}
+                <PostCard {post}/>
+            {/each}
+        {/await}
     </div>
 </main>
 
