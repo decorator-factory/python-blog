@@ -1,30 +1,54 @@
 <script>
-	export let name;
+    import PostCard from './PostCard.svelte';
+
+    const post = {
+        uid: 42,
+        title: 'Hello, world!',
+        content: 'Content!!!'
+    };
 </script>
 
+<header>
+    <h1 class="main-title">Welcome to my blog!</h1>
+</header>
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+    <div class="posts">
+        <PostCard {post}/>
+        <PostCard {post}/>
+        <PostCard {post}/>
+        <PostCard {post}/>
+        <PostCard {post}/>
+        <PostCard {post}/>
+        <PostCard {post}/>
+        <PostCard {post}/>
+    </div>
 </main>
 
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+    header {
+        width: 100%;
+        min-height: 8em;
+        background: #98e675;
+    }
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
+    .main-title {
+        font-size: 36pt;
+        margin: 0;
+        padding-top: 0.5em;
+        text-align: center;
+    }
 
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+    main {
+        width: 60%;
+        max-height: 80%;
+        background: #f2f2f7;
+        margin: auto;
+        overflow-y: scroll;
+    }
+
+    main>.posts {
+        height: 100%;
+        margin: auto;
+        width: 50%;
+    }
 </style>
