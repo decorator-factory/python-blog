@@ -5,6 +5,8 @@ from fastapi.exceptions import HTTPException
 from fastapi.staticfiles import StaticFiles
 from .posts import Post
 
+import asyncio
+
 
 SQLITE_CONNECTION: Optional[aiosqlite.Connection] = None
 
@@ -46,6 +48,8 @@ async def on_shutdown():
 
 @app.get("/posts/{uid}", response_model=Post)
 async def get_post(uid: int) -> Post:
+    await asyncio.sleep(1)
+
     conn = await get_sqlite_connection()
     async with conn.execute(
         "SELECT uid, title, content FROM posts WHERE uid=?",
@@ -60,6 +64,8 @@ async def get_post(uid: int) -> Post:
 
 @app.get("/posts", response_model=List[Post])
 async def index_posts() -> List[Post]:
+    await asyncio.sleep(1)
+
     conn = await get_sqlite_connection()
     async with conn.execute(
         "SELECT uid, title, content FROM posts"

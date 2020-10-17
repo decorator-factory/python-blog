@@ -21,7 +21,7 @@
 <main>
     <div class="posts">
         {#await getPosts()}
-            waiting...
+            Loading posts...
         {:then posts}
             {#each posts as post}
                 <PostCard {post}/>
