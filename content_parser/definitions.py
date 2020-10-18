@@ -44,14 +44,14 @@ def concat():
     def from_inline(*args):
         for arg in args:
             if not et.IInl().match(arg):
-                raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
+                raise TypeError(f"$: Expected :`Inl`, got {arg}:{arg.ty}")
         return e.InlineConcat(args)
     yield ((), et.IInl(), et.TInline(), from_inline)
 
     def from_mixed(*args):
         for arg in args:
             if not et.IRen().match(arg):
-                raise TypeError(f"bf: Expected :`Ren`, got {arg}:{arg.ty}")
+                raise TypeError(f"$: Expected :`Ren`, got {arg}:{arg.ty}")
         return e.BlockConcat(args)
     yield ((), et.IRen(), et.IRen(), from_mixed)
 
@@ -64,7 +64,7 @@ def heading():
         def from_inline(*args):
             for arg in args:
                 if not et.IInl().match(arg):
-                    raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
+                    raise TypeError(f"(h {n.value}): Expected :`Inl`, got {arg}:{arg.ty}")
             return e.InlineTag(f"h{n.value}", "", args)
         return e.Function({FN_TYPE: from_inline})
     yield ((), et.TInt(), FN_TYPE, from_int)
@@ -78,7 +78,7 @@ def style_inline():
         def from_inline(*args):
             for arg in args:
                 if not et.IInl().match(arg):
-                    raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
+                    raise TypeError(f'(style "..."): Expected :`Inl`, got {arg}:{arg.ty}')
             return e.InlineTag("span", "style=" + json.dumps(s.value), args)
         return e.Function({FN_TYPE: from_inline})
     yield ((), et.TStr(), FN_TYPE, from_str)
@@ -89,7 +89,7 @@ def list_unordered():
     def from_inline(*args):
         for arg in args:
             if not et.IInl().match(arg):
-                raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
+                raise TypeError(f"list-unordered: Expected :`Inl`, got {arg}:{arg.ty}")
         return e.InlineTag(
             "ul",
             "",
@@ -103,7 +103,7 @@ def list_ordered():
     def from_inline(*args):
         for arg in args:
             if not et.IInl().match(arg):
-                raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
+                raise TypeError(f"list-ordered: Expected :`Inl`, got {arg}:{arg.ty}")
         return e.InlineTag(
             "ol",
             "",
