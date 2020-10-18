@@ -164,3 +164,10 @@ def emdash():
     def from_void():
         return e.InlineRaw("&emdash;")
     yield ((), None, et.TInline(), from_void)
+
+
+@fn("nl")
+def newline():
+    def from_void():
+        return e.InlineRaw("\n")
+    yield ((), None, et.TInline(), from_void)
