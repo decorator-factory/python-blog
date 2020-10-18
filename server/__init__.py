@@ -1,11 +1,18 @@
+import asyncio
 from typing import List, Optional
+from pathlib import Path
+
+import aiofiles
 import aiosqlite
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.staticfiles import StaticFiles
+
+import content_parser
 from .posts import Post
 
-import asyncio
+
+###
 
 
 SQLITE_CONNECTION: Optional[aiosqlite.Connection] = None
@@ -20,15 +27,13 @@ async def get_sqlite_connection():
             CREATE TABLE IF NOT EXISTS posts (
                 uid INTEGER PRIMARY KEY,
                 title VARCHAR(256),
-                content TEXT
+                path VARCHAR(256)
             );
         """)).close()
 
         await (await SQLITE_CONNECTION.execute("""--sql
-            INSERT INTO posts (title, content) VALUES
-                ('Post 1', 'Content 1'),
-                ('Post 2', 'Content 2'),
-                ('Post 3', 'Content 3')
+            INSERT INTO posts (title, path) VALUES
+                ('Test post', 'test.clj')
             ;
         """, ())).close()
 
@@ -46,19 +51,34 @@ async def on_shutdown():
         await SQLITE_CONNECTION.close()
 
 
+###
+
+
+async def load_post(uid: int, title: str, path: str) -> Optional[Post]:
+    try:
+        async with aiofiles.open(Path("store") / path) as file: # type: ignore
+            content = await file.read()
+            html = content_parser.html(content)
+            return Post(uid=uid, title=title, content=html)
+    except FileNotFoundError:
+        return None
+
+
 @app.get("/posts/{uid}", response_model=Post)
 async def get_post(uid: int) -> Post:
     await asyncio.sleep(1)
 
     conn = await get_sqlite_connection()
     async with conn.execute(
-        "SELECT uid, title, content FROM posts WHERE uid=?",
+        "SELECT uid, title, path FROM posts WHERE uid=?",
         (uid,)
     ) as cursor:
         row = await cursor.fetchone()
         if row is None:
             raise HTTPException(404, f"Post with uid={uid} not found")
-        return Post(uid=row["uid"], title=row["title"], content=row["content"])
+        if (post := await load_post(row["uid"], row["title"], row["path"])) is None:
+            raise HTTPException(404, f"Post with uid={uid} has an invalid path")
+        return post
 
 
 
@@ -68,12 +88,12 @@ async def index_posts() -> List[Post]:
 
     conn = await get_sqlite_connection()
     async with conn.execute(
-        "SELECT uid, title, content FROM posts"
+        "SELECT uid, title, path FROM posts"
     ) as cursor:
         posts = []
         async for row in cursor:
-            post = Post(uid=row["uid"], title=row["title"], content=row["content"])
-            posts.append(post)
+            if post := await load_post(row["uid"], row["title"], row["path"]):
+                posts.append(post)
         return posts
 
 

@@ -1,4 +1,5 @@
 uvicorn
 fastapi
 aiosqlite
+aiofiles
 lark-parser
