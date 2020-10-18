@@ -39,6 +39,16 @@ def italics():
     yield ((), et.IInl(), et.TInline(), from_inline)
 
 
+@fn("mono")
+def monospace():
+    def from_inline(*args):
+        for arg in args:
+            if not et.IInl().match(arg):
+                raise TypeError(f"mono: Expected :`Inl`, got {arg}:{arg.ty}")
+        return e.InlineTag("tt", "", args)
+    yield ((), et.IInl(), et.TInline(), from_inline)
+
+
 @fn("$")
 def concat():
     def from_inline(*args):
