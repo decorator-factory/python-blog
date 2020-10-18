@@ -1,5 +1,6 @@
 import re
 import json # json is needed to decode a string
+from textwrap import dedent
 from typing import Mapping
 from lark import Lark, Transformer, v_args
 from . import entities as e
@@ -18,6 +19,11 @@ class LanguageTransformer(Transformer):
         return e.String(json.loads(
             re.sub(r"\s+", " ", str(token))
         ))
+
+    @staticmethod
+    def raw_string(token):
+        s = str(token)[2:-2].replace("\n", "\\n")
+        return e.String(dedent(json.loads(s)))
 
     @staticmethod
     def name(token):
