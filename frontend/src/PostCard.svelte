@@ -1,11 +1,14 @@
 <script>
     export let post; // { uid: number, title: string, content: string }
+
+    let show = false;
+    const toggleVisibility = () => { show = !show; };
 </script>
 
 <style>
     .post {
         display: grid;
-        grid-template-rows: minmax(1.5em, 1fr) minmax(6em, auto);
+        grid-template-rows: minmax(1.5em, 1fr) minmax(3em, auto);
         grid-template-columns: 1fr 10fr 1fr;
 
         grid-template-areas:
@@ -44,12 +47,19 @@
     .post div {
         border: 1px solid black;
     }
+
+    .hidden {
+        display: none;
+    }
 </style>
 
 <div class="post">
     <div class="uid"><span class="centered">{post.uid}</span></div>
     <div class="title">{post.title}</div>
     <div class="content">
+        <button on:click={toggleVisibility}>{show ? 'Hide' : 'Show'}</button>
+        {#if show}
         {@html post.content}
+        {/if}
     </div>
 </div>
