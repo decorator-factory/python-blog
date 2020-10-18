@@ -55,4 +55,4 @@ def run(source: str) -> e.Entity:
 
 def html(source: str) -> str:
     result = run(source)
-    return result.render()
+    return result.render(definitions.BUILTINS)

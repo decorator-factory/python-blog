@@ -187,6 +187,55 @@ def pre():
     yield ((), et.TStr(), et.TBlock(), from_inline)
 
 
+
+@fn("map")
+def map_function():
+    INPUT_FN_INLINE = et.TFunction((et.IInl(),), None, et.TInline())
+    # HACK... `(λ ...a . t)` fits everywhere `(λ a . t)` fits,
+    # but my type system doesn't know that yet
+    INPUT_FN_INLINE2 = et.TFunction((), et.IInl(), et.TInline()) # HACK
+    FN_TYPE_INLINE = et.TFunction((), et.IInl(), et.TInline())
+
+    def from_fn_inline(fn):
+        def from_inl(*args):
+            return e.InlineConcat(tuple(e.Sexpr(fn, (arg,)) for arg in args))
+        return e.Function({FN_TYPE_INLINE: from_inl})
+    yield ((INPUT_FN_INLINE,), None, FN_TYPE_INLINE, from_fn_inline)
+    yield ((INPUT_FN_INLINE2,), None, FN_TYPE_INLINE, from_fn_inline) # HACK
+
+
+    INPUT_FN_BLOCK = et.TFunction((et.IRen(),), None, et.TBlock())
+    INPUT_FN_BLOCK2 = et.TFunction((), et.IRen(), et.TBlock()) # HACK
+    FN_TYPE_BLOCK = et.TFunction((), et.IRen(), et.TBlock())
+
+    def from_fn_block(fn):
+        def from_ren(*args):
+            return e.BlockConcat(tuple(e.Sexpr(fn, (arg,)) for arg in args))
+        return e.Function({FN_TYPE_BLOCK: from_ren})
+    yield ((INPUT_FN_BLOCK,), None, FN_TYPE_BLOCK, from_fn_block)
+    yield ((INPUT_FN_BLOCK2,), None, FN_TYPE_BLOCK, from_fn_block) # HACK
+
+
+@fn("sepmap")
+def sepmap():
+    INPUT_FN_INLINE = et.TFunction((et.IInl(),), None, et.TInline())
+    # HACK: see `@fn(map)`
+    INPUT_FN_INLINE2 = et.TFunction((), et.IInl(), et.TInline()) # HACK
+    FN_TYPE = et.TFunction((), et.IInl(), et.TInline())
+
+    def from_inl_fn(sep, fn):
+        def from_inl(*args):
+            #    ((sepmap ", " e) "sub" "sup" "sube")
+            # == ((sep ", ") (e "sub") (e "sup") (e "sube"))
+            return e.Sexpr(
+                e.Sexpr(separated, (sep,)),
+                tuple(e.Sexpr(fn, (arg,)) for arg in args)
+            )
+        return e.Function({FN_TYPE: from_inl})
+    yield ((et.IInl(), INPUT_FN_INLINE), None, FN_TYPE, from_inl_fn)
+    yield ((et.IInl(), INPUT_FN_INLINE2), None, FN_TYPE, from_inl_fn) # HACK
+
+
 @fn("sep")
 def separated():
     FN_TYPE = et.TFunction((), et.IInl(), et.TInline())

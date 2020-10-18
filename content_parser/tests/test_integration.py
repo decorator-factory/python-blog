@@ -47,6 +47,20 @@ def test_separator():
     )
 
 
+def test_map():
+    assert(
+        html('((map p) "hello" "world" "abc")')
+        == '<p>hello</p><p>world</p><p>abc</p>'
+    )
+
+
+def test_sepmap():
+    assert (
+        html('((sepmap ", " bf) "a" "b" "c")')
+        == html('($ (bf "a") ", " (bf "b") ", " (bf "c"))')
+    )
+
+
 def test_readme_example():
     SOURCE = """
         ; this is a comment

@@ -10,12 +10,13 @@ class Entity:
     def ty(self):
         return et.TAny()
 
-    def render(self) -> str:
-        if hasattr(self, "render_inline"):
-            return self.render_inline() # type: ignore
-        if hasattr(self, "render_block"):
-            return self.render_block() # type: ignore
-        raise TypeError(f"Cannot render {self}")
+    def render(self, runtime) -> str:
+        e = self.evaluate(runtime)
+        if hasattr(e, "render_inline"):
+            return e.render_inline(runtime) # type: ignore
+        if hasattr(e, "render_block"):
+            return e.render_block(runtime) # type: ignore
+        raise TypeError(f"Cannot render {e}")
 
     def evaluate(self, runtime) -> Entity:
         return self
@@ -70,7 +71,7 @@ class Integer(Entity):
 
     ty = et.TInt()
 
-    def render_inline(self):
+    def render_inline(self, runtime):
         return str(self.value)
 
 
@@ -80,7 +81,7 @@ class String(Entity):
 
     ty = et.TStr()
 
-    def render_inline(self):
+    def render_inline(self, runtime):
         return html.escape(self.value, quote=True)
 
 
@@ -92,11 +93,11 @@ class InlineTag(Entity):
 
     ty = et.TInline()
 
-    def render_inline(self):
+    def render_inline(self, runtime):
         option_str = " "*(self.options != "") + self.options
         return (
              f"<{self.tag}{option_str}>"
-            + "".join(e.render_inline() for e in self.children) # type: ignore
+            + "".join(e.render_inline(runtime) for e in self.children) # type: ignore
             +f"</{self.tag}>"
         )
 
@@ -109,11 +110,11 @@ class BlockTag(Entity):
 
     ty = et.TBlock()
 
-    def render_block(self):
+    def render_block(self, runtime):
         option_str = " "*(self.options != "") + self.options
         return (
              f"<{self.tag}{option_str}>"
-            + "".join(e.render() for e in self.children)
+            + "".join(e.render(runtime) for e in self.children)
             +f"</{self.tag}>"
         )
 
@@ -124,7 +125,7 @@ class InlineRaw(Entity):
 
     ty = et.TInline()
 
-    def render_inline(self):
+    def render_inline(self, runtime):
         return self.html
 
 
@@ -134,7 +135,7 @@ class BlockRaw(Entity):
 
     ty = et.TInline()
 
-    def render_block(self):
+    def render_block(self, runtime):
         return self.html
 
 
@@ -144,8 +145,8 @@ class InlineConcat(Entity):
 
     ty = et.TInline()
 
-    def render_inline(self):
-        return "".join(e.render_inline() for e in self.children) # type: ignore
+    def render_inline(self, runtime):
+        return "".join(e.render_inline(runtime) for e in self.children) # type: ignore
 
 
 @dataclass(frozen=True, eq=True)
@@ -154,8 +155,8 @@ class BlockConcat(Entity):
 
     ty = et.TBlock()
 
-    def render_block(self):
-        return "".join(e.render() for e in self.children) # type: ignore
+    def render_block(self, runtime):
+        return "".join(e.render(runtime) for e in self.children) # type: ignore
 
 
 @dataclass(frozen=True, eq=True)
