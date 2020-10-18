@@ -71,20 +71,59 @@
   (p "All of them!")
   (p "Seriously, though, this is a vague question. You probably cannot "
     "hold all the built-in data types in your head because there are just "
-    "so many of them. First, there are obvious types like integerss, strings, "
-    "lists, dicts, and so on. Then there are standard library types that are not "
-    "built-in: stuff from " (mono "collections") ", " (mono "datetime") " etc. ")
+    "so many of them. Firstly, there are obvious types like integers, strings, "
+    "lists, dicts, and so on. Then there are other standard library types: "
+    "stuff from " (mono "collections") ", " (mono "datetime") " etc. ")
   (p "Then there are datatypes which hide in plain sight: many people don't realize "
     "they are separate data types. For example, " (mono "range") " is not a function, "
-    "it's a class " (--) " and calling it create a " (mono "range") " object, "
+    "it's a class " (--) " and calling it creates a " (mono "range") " object, "
     "which is iterable, but not an iterator. " (mono "map") ", " (mono "filter")
-    ", " (mono "itertools.groupby") ", " (mono "int/list/str/...") " are all "
-    "classes as well.")
+    ", " (mono "int/list/str/...") " are all classes as well " (--) " not functions.")
   (p "And don't forget that in Python, " (it "class") " is the same thing "
     "as " (it "type") ", so every time you define a class you create "
     "a new data type. So statements like " (it "'There are N data types"
     " in Python'") " are misleading. There can be as many types in Python as "
-    "you want")
+    "you want.")
 
+
+  (horizontal-rule)
+  ((h 2)
+    "Q6. What does a decorator return?")
+  (p "Most of the times, a decorator returns something callable. It can be "
+    "a function, and sometimes it's a custom callable object (as it is "
+    "with " (mono "property") ", " (mono "staticmethod") ", "
+    (mono "classmethod") ", for example.")
+  (p "But it doesn't have to: a decorator can return whatever you want.")
+  (pre
+    ">>> def name_length(fn):"
+    "...     return len(fn.__name__)"
+    "..."
+    ">>> @name_length"
+    "... def my_function():"
+    "...     pass"
+    "..."
+    ">>> my_function"
+    "12"
+    ">>>"
+  )
+
+  (horizontal-rule)
+  ((h 2)
+    "Q7. What is " (mono "self") " in Python?")
+  (p (mono "self") (it " is a keyword that...") " No, " (mono "self") " is not "
+    "a keyword " (--) " it's just a convention to use " (mono "self") "as the name "
+    "of the first parameter in methods. A " (it "keyword") " is a reserved word "
+    "that has a special meaning for the parser, like " (mono "if") " or " (mono "import") ". ")
+
+  (horizontal-rule)
+  ((h 2)
+    "Q8. What does the " (mono "__init__") " method do?")
+  (p "The " (mono "__init__") " method does not create an obejct and "
+    (it "definitely") " doesn't allocate any memory. This method get called "
+    "after the object has already been created.")
+
+  (horizontal-rule)
+  ((h 2)
+    "Q9. What is ")
 
 )
