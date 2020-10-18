@@ -120,3 +120,14 @@ def paragraph():
                 raise TypeError(f"p: Expected :`Ren`, got {arg}:{arg.ty}")
         return e.BlockTag("p", "", args)
     yield ((), et.IRen(), et.TBlock(), from_inline)
+
+
+@fn("a")
+def link():
+    def from_str_inline(adr, text):
+        if not et.TStr().match(adr):
+            raise TypeError(f"a: Expected :`str`, got {adr}:{adr.ty}")
+        if not et.IInl().match(text):
+            raise TypeError(f"a: Expected :`Inl`, got {adr}:{adr.ty}")
+        return e.InlineTag("a", f"href={json.dumps(adr.value)}", (text,))
+    yield ((et.TStr(), et.IInl()), None, et.TInline(), from_str_inline)
