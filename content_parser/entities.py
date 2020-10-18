@@ -171,7 +171,7 @@ class Function(Entity):
 
                     return f(*positional_args, *rest_args)
         arg_types_repr = "(" + ", ".join(e.ty.signature() for e in args) + ")"
-        raise TypeError(f"Cannot call {self} with {arg_types_repr}")
+        raise TypeError(f"Cannot call {self.ty.signature()} with {arg_types_repr}")
 
 
     def return_type_when_called_with(self, *, args, rest):
