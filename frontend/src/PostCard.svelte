@@ -55,7 +55,9 @@
     <div class="content">
         <button on:click={toggleVisibility}>{show ? 'Hide' : 'Show'}</button>
         {#if show}
-        {@html post.content}
+            <div>
+            {@html post.content}
+            </div>
         {/if}
     </div>
 </div>
