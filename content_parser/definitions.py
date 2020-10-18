@@ -14,7 +14,7 @@ def fn(name: str):
             for arg_types, rest_types, return_type, fn in f()
         }
         BUILTINS[name] = e.Function(overloads)
-        return f
+        return BUILTINS[name]
     return _add_fn_to_builtins
 
 
@@ -171,3 +171,17 @@ def newline():
     def from_void():
         return e.InlineRaw("\n")
     yield ((), None, et.TInline(), from_void)
+
+
+@fn("pre")
+def pre():
+    def from_inline(*args):
+        for arg in args:
+            if not et.TStr().match(arg):
+                raise TypeError(f"p: Expected :`str`, got {arg}:{arg.ty}")
+        elements = []
+        for arg in args:
+            elements.append(arg)
+            elements.append(e.InlineRaw("\n"))
+        return e.BlockTag("pre", "", tuple(elements))
+    yield ((), et.TStr(), et.TBlock(), from_inline)
