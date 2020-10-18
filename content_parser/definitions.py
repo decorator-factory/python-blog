@@ -67,7 +67,7 @@ def heading():
                     raise TypeError(f"(h {n.value}): Expected :`Inl`, got {arg}:{arg.ty}")
             return e.InlineTag(f"h{n.value}", "", args)
         return e.Function({FN_TYPE: from_inline})
-    yield ((), et.TInt(), FN_TYPE, from_int)
+    yield ((et.TInt(),), None, FN_TYPE, from_int)
 
 
 @fn("style")
