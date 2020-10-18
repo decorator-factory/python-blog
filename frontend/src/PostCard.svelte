@@ -47,10 +47,6 @@
     .post div {
         border: 1px solid black;
     }
-
-    .hidden {
-        display: none;
-    }
 </style>
 
 <div class="post">
