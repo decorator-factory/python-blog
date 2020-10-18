@@ -49,6 +49,15 @@ def monospace():
     yield ((), et.IInl(), et.TInline(), from_inline)
 
 
+@fn("e")
+def entity():
+    def from_str(s):
+        if not et.TStr().match(s):
+            raise TypeError(f"e: Expected :`str`, got {s}:{s.ty}")
+        return e.InlineRaw(f"&{s.value};")
+    yield ((et.TStr(),), None, et.TInline(), from_str)
+
+
 @fn("$")
 def concat():
     def from_inline(*args):
@@ -148,3 +157,10 @@ def horizontal_rule():
     def from_void():
         return e.BlockRaw("<hr/>")
     yield ((), None, et.TBlock(), from_void)
+
+
+@fn("--")
+def emdash():
+    def from_void():
+        return e.InlineRaw("&emdash;")
+    yield ((), None, et.TInline(), from_void)
