@@ -1,5 +1,6 @@
 import json
 import asyncio
+import watchgod
 from typing import List, Optional
 from pathlib import Path
 
@@ -34,7 +35,13 @@ async def setup_sqlite_from_config():
     # for convenient and performant searching
 
     conn = await get_sqlite_connection()
-    await (await conn.execute("""--sql
+    await (await conn.execute("""
+        --sql
+        DROP TABLE IF EXISTS posts;
+    """)).close()
+
+    await (await conn.execute("""
+        --sql
         CREATE TABLE IF NOT EXISTS posts (
             uid INTEGER PRIMARY KEY,
             title VARCHAR(256),
@@ -59,8 +66,7 @@ async def setup_sqlite_from_config():
 app = FastAPI()
 
 
-@app.on_event("startup")
-async def on_startup():
+async def reload_sqlite():
     global SQLITE_CONNECTION
     try:
         await setup_sqlite_from_config()
@@ -69,6 +75,20 @@ async def on_startup():
             await SQLITE_CONNECTION.close()
             SQLITE_CONNECTION = None
         raise
+
+
+async def live_reload():
+    print("Live reloading the store...")
+    async for _ in watchgod.awatch("store/"):
+        await reload_sqlite()
+
+
+@app.on_event("startup")
+async def on_startup():
+    await reload_sqlite()
+    asyncio.create_task(live_reload())
+
+
 
 
 @app.on_event("shutdown")

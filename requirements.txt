@@ -3,3 +3,4 @@ fastapi
 aiosqlite
 aiofiles
 lark-parser
+watchgod
