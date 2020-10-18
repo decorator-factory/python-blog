@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 import content_parser.entity_types as et
 import content_parser.entities as e
@@ -56,5 +57,18 @@ def heading():
                     raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
             return e.InlineTag(f"h{n.value}", "", args)
         return e.Function({FN_TYPE: from_inline})
-
     yield ((), et.TInt(), FN_TYPE, from_int)
+
+
+@fn("style")
+def style_inline():
+    FN_TYPE = et.TFunction((), et.IInl(), et.TInline())
+
+    def from_str(s: e.String):
+        def from_inline(*args):
+            for arg in args:
+                if not et.IInl().match(arg):
+                    raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
+            return e.InlineTag("span", "style=" + json.dumps(s.value), args)
+        return e.Function({FN_TYPE: from_inline})
+    yield ((), et.TStr(), FN_TYPE, from_str)

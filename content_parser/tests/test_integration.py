@@ -16,3 +16,7 @@ def test_concat():
 
 def test_heading():
     assert html('((h 2) "hello" " " "world")') == "<h2>hello world</h2>"
+
+
+def test_style_inline():
+    assert html('((style "color: red") "text")') == '<span style="color: red">text</span>'
