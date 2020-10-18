@@ -218,10 +218,13 @@ def map_function():
 
 @fn("sepmap")
 def sepmap():
-    INPUT_FN_INLINE = et.TFunction((et.IInl(),), None, et.TInline())
     # HACK: see `@fn(map)`
-    INPUT_FN_INLINE2 = et.TFunction((), et.IInl(), et.TInline()) # HACK
-    FN_TYPE = et.TFunction((), et.IInl(), et.TInline())
+    INPUT_FN_INLINE = et.TFunction((et.IInl(),), None, et.TInline())
+    INPUT_FN_INLINE2 = et.TFunction((), et.IInl(), et.TInline())
+    INPUT_FN_STR = et.TFunction((et.TStr(),), None, et.TInline())
+    INPUT_FN_STR2 = et.TFunction((), et.TStr(), et.TInline())
+    FN_TYPE_INL = et.TFunction((), et.IInl(), et.TInline())
+    FN_TYPE_STR = et.TFunction((), et.TStr(), et.TInline())
 
     def from_inl_fn(sep, fn):
         def from_inl(*args):
@@ -231,9 +234,11 @@ def sepmap():
                 e.Sexpr(separated, (sep,)),
                 tuple(e.Sexpr(fn, (arg,)) for arg in args)
             )
-        return e.Function({FN_TYPE: from_inl})
-    yield ((et.IInl(), INPUT_FN_INLINE), None, FN_TYPE, from_inl_fn)
-    yield ((et.IInl(), INPUT_FN_INLINE2), None, FN_TYPE, from_inl_fn) # HACK
+        return e.Function({FN_TYPE_INL: from_inl, FN_TYPE_STR: from_inl})
+    yield ((et.IInl(), INPUT_FN_INLINE), None, FN_TYPE_INL, from_inl_fn)
+    yield ((et.IInl(), INPUT_FN_INLINE2), None, FN_TYPE_INL, from_inl_fn)
+    yield ((et.TStr(), INPUT_FN_STR), None, FN_TYPE_STR, from_inl_fn)
+    yield ((et.TStr(), INPUT_FN_STR2), None, FN_TYPE_STR, from_inl_fn)
 
 
 @fn("sep")
