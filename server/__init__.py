@@ -51,6 +51,7 @@ async def setup_sqlite_from_config():
             cursor = await conn.execute("""--sql
                 INSERT INTO posts (uid, title, content) VALUES (?, ?, ?);
             """, (post["uid"], post["title"], content))
+            await cursor.close()
     await conn.commit()
 
 
@@ -60,7 +61,15 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def on_startup():
-    await setup_sqlite_from_config()
+    global SQLITE_CONNECTION
+    try:
+        await setup_sqlite_from_config()
+    except:
+        if SQLITE_CONNECTION is not None:
+            await SQLITE_CONNECTION.close()
+            SQLITE_CONNECTION = None
+        raise
+
 
 @app.on_event("shutdown")
 async def on_shutdown():
