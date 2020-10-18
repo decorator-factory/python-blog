@@ -162,7 +162,7 @@ def horizontal_rule():
 @fn("--")
 def emdash():
     def from_void():
-        return e.InlineRaw("&emdash;")
+        return e.InlineRaw("&mdash;")
     yield ((), None, et.TInline(), from_void)
 
 
