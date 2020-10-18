@@ -43,3 +43,18 @@ def concat():
                 raise TypeError(f"bf: Expected :`Ren`, got {arg}:{arg.ty}")
         return e.BlockConcat(args)
     yield ((), et.IRen(), et.IRen(), from_mixed)
+
+
+@fn("h")
+def heading():
+    FN_TYPE = et.TFunction((), et.IInl(), et.TInline())
+
+    def from_int(n: e.Integer):
+        def from_inline(*args):
+            for arg in args:
+                if not et.IInl().match(arg):
+                    raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
+            return e.InlineTag(f"h{n.value}", "", args)
+        return e.Function({FN_TYPE: from_inline})
+
+    yield ((), et.TInt(), FN_TYPE, from_int)

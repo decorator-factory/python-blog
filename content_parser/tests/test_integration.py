@@ -12,3 +12,7 @@ def test_boldface():
 def test_concat():
     assert html('($ "abc" "def" "ghi")') == "abcdefghi"
     assert html('($ "abc" (bf "def") "ghi")') == "abc<b>def</b>ghi"
+
+
+def test_heading():
+    assert html('((h 2) "hello" " " "world")') == "<h2>hello world</h2>"
