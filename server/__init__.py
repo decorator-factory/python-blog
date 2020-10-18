@@ -1,3 +1,4 @@
+import json
 import asyncio
 from typing import List, Optional
 from pathlib import Path
@@ -23,27 +24,43 @@ async def get_sqlite_connection():
         SQLITE_CONNECTION = await aiosqlite.connect(":memory:")
         SQLITE_CONNECTION.row_factory = aiosqlite.Row
 
-        await (await SQLITE_CONNECTION.execute("""--sql
-            CREATE TABLE IF NOT EXISTS posts (
-                uid INTEGER PRIMARY KEY,
-                title VARCHAR(256),
-                path VARCHAR(256)
-            );
-        """)).close()
-
-        await (await SQLITE_CONNECTION.execute("""--sql
-            INSERT INTO posts (title, path) VALUES
-                ('Test post', 'test.clj')
-            ;
-        """, ())).close()
-
-        await SQLITE_CONNECTION.commit()
 
     return SQLITE_CONNECTION
 
 
+async def setup_sqlite_from_config():
+    # The configuration file stores the information about the posts
+    # This data is loaded into an in-memory SQLite database
+    # for convenient and performant searching
+
+    conn = await get_sqlite_connection()
+    await (await conn.execute("""--sql
+        CREATE TABLE IF NOT EXISTS posts (
+            uid INTEGER PRIMARY KEY,
+            title VARCHAR(256),
+            content TEXT
+        );
+    """)).close()
+    await conn.commit()
+
+    async with aiofiles.open(Path("store/store.json")) as config:  # type: ignore
+        data = json.loads(await config.read())
+        for post in data["posts"]:
+            async with aiofiles.open(Path("store") / post["path"]) as file:  # type: ignore
+                content = content_parser.html(await file.read())
+            cursor = await conn.execute("""--sql
+                INSERT INTO posts (uid, title, content) VALUES (?, ?, ?);
+            """, (post["uid"], post["title"], content))
+    await conn.commit()
+
+
+
 app = FastAPI()
 
+
+@app.on_event("startup")
+async def on_startup():
+    await setup_sqlite_from_config()
 
 @app.on_event("shutdown")
 async def on_shutdown():
@@ -54,31 +71,19 @@ async def on_shutdown():
 ###
 
 
-async def load_post(uid: int, title: str, path: str) -> Optional[Post]:
-    try:
-        async with aiofiles.open(Path("store") / path) as file: # type: ignore
-            content = await file.read()
-            html = content_parser.html(content)
-            return Post(uid=uid, title=title, content=html)
-    except FileNotFoundError:
-        return None
-
-
 @app.get("/posts/{uid}", response_model=Post)
 async def get_post(uid: int) -> Post:
     await asyncio.sleep(1)
 
     conn = await get_sqlite_connection()
     async with conn.execute(
-        "SELECT uid, title, path FROM posts WHERE uid=?",
+        "SELECT uid, title, content FROM posts WHERE uid=?",
         (uid,)
     ) as cursor:
         row = await cursor.fetchone()
         if row is None:
             raise HTTPException(404, f"Post with uid={uid} not found")
-        if (post := await load_post(row["uid"], row["title"], row["path"])) is None:
-            raise HTTPException(404, f"Post with uid={uid} has an invalid path")
-        return post
+        return Post(uid=row["uid"], title=row["title"], content=row["content"])
 
 
 
@@ -88,12 +93,12 @@ async def index_posts() -> List[Post]:
 
     conn = await get_sqlite_connection()
     async with conn.execute(
-        "SELECT uid, title, path FROM posts"
+        "SELECT uid, title, content FROM posts"
     ) as cursor:
         posts = []
         async for row in cursor:
-            if post := await load_post(row["uid"], row["title"], row["path"]):
-                posts.append(post)
+            post = Post(uid=row["uid"], title=row["title"], content=row["content"])
+            posts.append(post)
         return posts
 
 

@@ -1,0 +1,5 @@
+{
+    "posts": [
+        { "uid": 1, "title": "Test article", "path": "test.clj" }
+    ]
+}
