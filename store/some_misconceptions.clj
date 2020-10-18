@@ -9,7 +9,7 @@
     "Q1. Is Python " (it "intepreted") " or " (it "compiled") "?")
   (p
     "Can you compile Python to machine code? Yes, you can use Nuitka for that.
-    Does it have a JIT compiler?Yes, it's called PyPy.")
+    Does it have a JIT compiler? Yes, it's called PyPy.")
   (p
     "The most widely used and supported Python implementation is "
     (it "CPython") ". CPython executes a program by first compiling it
@@ -72,7 +72,7 @@
   (p
     "There is also an unexpected usage of those operators in the standard
     library: when used on sets, they act as "
-    (e "sub") ", " (e "sup") ", " (e "sube") ", " (e "supe") ".")
+    ((sepmap ", " e) "sub" "sup" "sube" "supe") ".")
 
   (horizontal-rule)
   ((h 2)
@@ -88,8 +88,8 @@
     "Then there are datatypes which hide in plain sight: many people don't realize
     they are separate data types. For example, " (mono "range") " is not a function,
     it's a class " (--) " and calling it creates a " (mono "range") " object,
-    which is iterable, but not an iterator. " (mono "map") ", " (mono "filter")
-    ", " (mono "int/list/str/...") " are all classes as well " (--) " not functions.")
+    which is iterable, but not an iterator. " ((sepmap ", " mono) "map" "filter" "int/list/str")
+    " are all classes as well " (--) " not functions.")
   (p
     "And don't forget that in Python, " (it "class") " is the same thing
     as " (it "type") ", so every time you define a class you create
@@ -104,8 +104,8 @@
   (p
     "Most of the times, a decorator returns something callable. It can be
     a function, and sometimes it's a custom callable object (as it is
-    with " (mono "property") ", " (mono "staticmethod") ", "
-    (mono "classmethod") ", for example.")
+    with " ((sepmap ", " mono) "property" "staticmethod" "classmethod")
+    ", for example.")
   (p
     "But it doesn't have to: a decorator can return whatever you want.")
   (pre """
@@ -125,7 +125,8 @@
   (horizontal-rule)
   ((h 2)
     "Q7. What is " (mono "self") " in Python?")
-  (p (mono "self") (it " is a keyword that...") " No, " (mono "self") " is not
+  (p
+    (mono "self") (it " is a keyword that...") " No, " (mono "self") " is not
     a keyword " (--) " it's just a convention to use " (mono "self") "as the name
     of the first parameter in methods. A " (it "keyword") " is a reserved word
     that has a special meaning for the parser, like " (mono "if") " or " (mono "import") ". ")
@@ -133,7 +134,8 @@
   (horizontal-rule)
   ((h 2)
     "Q8. What does the " (mono "__init__") " method do?")
-  (p "The " (mono "__init__") " method does not create an obejct and "
+  (p
+    "The " (mono "__init__") " method does not create an obejct and "
     (it "definitely") " doesn't allocate any memory. This method get called
     after the object has already been created.")
 
