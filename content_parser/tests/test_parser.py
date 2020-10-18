@@ -19,7 +19,7 @@ def test_parser():
         )
     """
 
-    ast = content_parser.parser.parse(SOURCE)
+    ast = content_parser.parse(SOURCE)
 
     assert ast == e.Sexpr(
         e.Name("$"),

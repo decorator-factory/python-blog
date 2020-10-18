@@ -29,3 +29,6 @@ parser = Lark.open(
     parser="lalr",
     transformer=LanguageTransformer(),
 )
+
+
+parse = parser.parse
