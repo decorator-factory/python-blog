@@ -38,3 +38,29 @@ def test_list_ordered():
         html('(list-ordered "hello" ($ "a" "b") "c")')
         == '<ol><li>hello</li><li>ab</li><li>c</li></ol>'
     )
+
+
+def test_readme_example():
+    SOURCE = """
+        ; this is a comment
+        ($
+            ((h 1)
+                "Hello, world!"
+            )
+            "Welcome to " (bf "my") " blog! It is:"
+            (list-unordered
+                (it "cool")
+                ($ (bf "super") " awesome") ; this is a comment as well
+                ((style "color: red; font-size: 100%") "amazing")
+            )
+        )
+    """
+    assert html(SOURCE) == (
+        '<h1>Hello, world!</h1>'
+        'Welcome to <b>my</b> blog! It is:'
+        '<ul>'
+            '<li><i>cool</i></li>'
+            '<li><b>super</b> awesome</li>'
+            '<li><span style="color: red; font-size: 100%">amazing</span></li>'
+        '</ul>'
+    )
