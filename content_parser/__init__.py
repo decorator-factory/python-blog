@@ -1,3 +1,4 @@
+import re
 import json # json is needed to decode a string
 from typing import Mapping
 from lark import Lark, Transformer, v_args
@@ -14,7 +15,9 @@ class LanguageTransformer(Transformer):
 
     @staticmethod
     def string(token):
-        return e.String(json.loads(str(token)))
+        return e.String(json.loads(
+            re.sub(r"\s+", " ", str(token))
+        ))
 
     @staticmethod
     def name(token):
