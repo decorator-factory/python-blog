@@ -82,9 +82,9 @@ def heading():
     def from_int(n: e.Integer):
         def from_inline(*args):
             for arg in args:
-                if not et.IInl().match(arg):
+                if not et.IRen().match(arg):
                     raise TypeError(f"(h {n.value}): Expected :`Inl`, got {arg}:{arg.ty}")
-            return e.InlineTag(f"h{n.value}", "", args)
+            return e.BlockTag(f"h{n.value}", "", args)
         return e.Function({FN_TYPE: from_inline})
     yield ((et.TInt(),), None, FN_TYPE, from_int)
 
@@ -109,12 +109,12 @@ def list_unordered():
         for arg in args:
             if not et.IInl().match(arg):
                 raise TypeError(f"list-unordered: Expected :`Inl`, got {arg}:{arg.ty}")
-        return e.InlineTag(
+        return e.BlockTag(
             "ul",
             "",
-            tuple(e.InlineTag("li", "", (arg,)) for arg in args)
+            tuple(e.BlockTag("li", "", (arg,)) for arg in args)
         )
-    yield ((), et.IInl(), et.TInline(), from_inline)
+    yield ((), et.IInl(), et.TBlock(), from_inline)
 
 
 @fn("list-ordered")
@@ -123,12 +123,12 @@ def list_ordered():
         for arg in args:
             if not et.IInl().match(arg):
                 raise TypeError(f"list-ordered: Expected :`Inl`, got {arg}:{arg.ty}")
-        return e.InlineTag(
+        return e.BlockTag(
             "ol",
             "",
-            tuple(e.InlineTag("li", "", (arg,)) for arg in args)
+            tuple(e.BlockTag("li", "", (arg,)) for arg in args)
         )
-    yield ((), et.IInl(), et.TInline(), from_inline)
+    yield ((), et.IInl(), et.TBlock(), from_inline)
 
 
 @fn("p")
