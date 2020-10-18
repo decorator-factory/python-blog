@@ -110,3 +110,13 @@ def list_ordered():
             tuple(e.InlineTag("li", "", (arg,)) for arg in args)
         )
     yield ((), et.IInl(), et.TInline(), from_inline)
+
+
+@fn("p")
+def paragraph():
+    def from_inline(*args):
+        for arg in args:
+            if not et.IRen().match(arg):
+                raise TypeError(f"p: Expected :`Ren`, got {arg}:{arg.ty}")
+        return e.BlockTag("p", "", args)
+    yield ((), et.IRen(), et.TBlock(), from_inline)
