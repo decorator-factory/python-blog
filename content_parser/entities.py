@@ -119,6 +119,26 @@ class BlockTag(Entity):
 
 
 @dataclass(frozen=True, eq=True)
+class InlineRaw(Entity):
+    html: str
+
+    ty = et.TInline()
+
+    def render_inline(self):
+        return self.html
+
+
+@dataclass(frozen=True, eq=True)
+class BlockRaw(Entity):
+    html: str
+
+    ty = et.TInline()
+
+    def render_block(self):
+        return self.html
+
+
+@dataclass(frozen=True, eq=True)
 class InlineConcat(Entity):
     children: Tuple[Entity, ...]
 
