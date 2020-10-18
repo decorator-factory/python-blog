@@ -1,20 +1,31 @@
-from lark import Lark, Transformer
+import json # json is needed to decode a string
+from lark import Lark, Transformer, v_args
+from . import entities as e
+from . import entity_types as et
 
-parser = Lark.open("grammar.lark", rel_to=__file__, parser="lalr")
 
-EXAMPLE = """
-($
-    ((h 1)
-        "Hello, world!"
-    )
-    "Welcome to " (bf "my") " blog! It is:"
-    (list-unordered
-        (it "cool")
-        ($ (bf "super") " awesome")
-        ((style "color: red; font-size: 100%") "amazing")
-    )
+@v_args(inline=True)
+class LanguageTransformer(Transformer):
+    @staticmethod
+    def integer(token):
+        return e.Integer(int(token))
+
+    @staticmethod
+    def string(token):
+        return e.String(json.loads(str(token)))
+
+    @staticmethod
+    def name(token):
+        return e.Name(str(token))
+
+    @staticmethod
+    def sexpr(fn, *args):
+        return e.Sexpr(fn, args)
+
+
+parser = Lark.open(
+    "grammar.lark",
+    rel_to=__file__,
+    parser="lalr",
+    transformer=LanguageTransformer(),
 )
-"""
-
-tree = parser.parse(EXAMPLE)
-print(tree.pretty())
