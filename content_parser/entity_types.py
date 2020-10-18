@@ -1,3 +1,4 @@
+from content_parser.entities import Entity
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
@@ -10,7 +11,16 @@ class EntityType:
         return value.ty == self
 
     def signature(self):
-        return ""
+        raise NotImplementedError
+
+
+@adt
+class TAny(EntityType):
+    def match(self, _value):
+        return True
+
+    def signature(self):
+        return "Any"
 
 
 @adt
