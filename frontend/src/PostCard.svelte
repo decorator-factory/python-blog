@@ -7,6 +7,7 @@
 
 <style>
     .post {
+        width: 90%;
         display: grid;
         grid-template-rows: minmax(1.5em, 1fr) minmax(3em, auto);
         grid-template-columns: 1fr 10fr 1fr;
@@ -26,7 +27,9 @@
 
     .post .uid {
         grid-area: "uid";
-        padding: 0.5em;
+        padding: 5mm;
+        background: #ddddff;
+        font-size: 20pt;
     }
 
     .centered {
@@ -47,12 +50,7 @@
         background: white;
     }
 
-    .post div {
-        border: 1px solid black;
-    }
-
     .large {
-        width: 90%;
         max-width: 100em;
     }
 </style>
