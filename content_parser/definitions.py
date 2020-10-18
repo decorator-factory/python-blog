@@ -29,6 +29,16 @@ def boldface():
     yield ((), et.IInl(), et.TInline(), from_inline)
 
 
+@fn("it")
+def italics():
+    def from_inline(*args):
+        for arg in args:
+            if not et.IInl().match(arg):
+                raise TypeError(f"it: Expected :`Inl`, got {arg}:{arg.ty}")
+        return e.InlineTag("i", "", args)
+    yield ((), et.IInl(), et.TInline(), from_inline)
+
+
 @fn("$")
 def concat():
     def from_inline(*args):
