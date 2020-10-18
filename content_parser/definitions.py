@@ -82,7 +82,7 @@ def heading():
     def from_int(n: e.Integer):
         def from_inline(*args):
             for arg in args:
-                if not et.IRen().match(arg):
+                if not et.IInl().match(arg):
                     raise TypeError(f"(h {n.value}): Expected :`Inl`, got {arg}:{arg.ty}")
             return e.BlockTag(f"h{n.value}", "", args)
         return e.Function({FN_TYPE: from_inline})
@@ -185,3 +185,25 @@ def pre():
             elements.append(e.InlineRaw("\n"))
         return e.BlockTag("pre", "", tuple(elements))
     yield ((), et.TStr(), et.TBlock(), from_inline)
+
+
+@fn("sep")
+def separated():
+    FN_TYPE = et.TFunction((), et.IInl(), et.TInline())
+
+    def from_str(separator):
+        def from_inline(*args):
+            if not et.IInl().match(separator):
+                raise TypeError(f"sep: Expected :`Inl`, got {separator}:{separator.ty}")
+            for arg in args:
+                if not et.IInl().match(arg):
+                    raise TypeError(f"(sep ...): Expected :`Inl`, got {arg}:{arg.ty}")
+            elements = []
+            for arg in args:
+                elements.append(arg)
+                elements.append(separator)
+            if elements != []:
+                elements.pop()
+            return e.InlineConcat(tuple(elements))
+        return e.Function({FN_TYPE: from_inline})
+    yield ((et.IInl(),), None, FN_TYPE, from_str)

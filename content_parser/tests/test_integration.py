@@ -40,6 +40,13 @@ def test_list_ordered():
     )
 
 
+def test_separator():
+    assert(
+        html('((sep ", ") "python" "js" "haskell")')
+        == 'python, js, haskell'
+    )
+
+
 def test_readme_example():
     SOURCE = """
         ; this is a comment
