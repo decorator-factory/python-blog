@@ -131,3 +131,10 @@ def link():
             raise TypeError(f"a: Expected :`Inl`, got {adr}:{adr.ty}")
         return e.InlineTag("a", f"href={json.dumps(adr.value)}", (text,))
     yield ((et.TStr(), et.IInl()), None, et.TInline(), from_str_inline)
+
+
+@fn("horizontal-rule")
+def horizontal_rule():
+    def from_void():
+        return e.BlockRaw("<hr/>")
+    yield ((), None, et.TBlock(), from_void)
