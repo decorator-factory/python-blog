@@ -81,7 +81,10 @@ async def reload_sqlite():
 async def live_reload():
     async for _ in watchgod.awatch("store/"):
         print("Live reloading the store...")
-        await reload_sqlite()
+        try:
+            await reload_sqlite()
+        except Exception as e:
+            print(e.__class__.__name__, e)
 
 
 @app.on_event("startup")
