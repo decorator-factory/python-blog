@@ -29,6 +29,13 @@
       "how a particular implementation of a language works"
       "how memory models differ between languages and implementation"
       "how type systems differ between languages"))
+  (horizontal-rule)
+  (p "Some resources get it wrong even worse. For example, "
+    (a "https://www.interviewbit.com/python-interview-questions/" "this website")
+    " claims that: " (it "An Interpreted language executes its statements line by line. "
+    "Languages such as Python, Javascript, R, PHP and Ruby are prime examples of "
+    "Interpreted languages. Programs written in an interpreted language runs directly "
+    "from the source code, with no intermediary compilation step."))
 
   (horizontal-rule)
   ((h 2)
