@@ -72,3 +72,31 @@ def style_inline():
             return e.InlineTag("span", "style=" + json.dumps(s.value), args)
         return e.Function({FN_TYPE: from_inline})
     yield ((), et.TStr(), FN_TYPE, from_str)
+
+
+@fn("list-unordered")
+def list_unordered():
+    def from_inline(*args):
+        for arg in args:
+            if not et.IInl().match(arg):
+                raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
+        return e.InlineTag(
+            "ul",
+            "",
+            tuple(e.InlineTag("li", "", (arg,)) for arg in args)
+        )
+    yield ((), et.IInl(), et.TInline(), from_inline)
+
+
+@fn("list-ordered")
+def list_ordered():
+    def from_inline(*args):
+        for arg in args:
+            if not et.IInl().match(arg):
+                raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
+        return e.InlineTag(
+            "ol",
+            "",
+            tuple(e.InlineTag("li", "", (arg,)) for arg in args)
+        )
+    yield ((), et.IInl(), et.TInline(), from_inline)

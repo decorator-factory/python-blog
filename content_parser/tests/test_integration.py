@@ -20,3 +20,17 @@ def test_heading():
 
 def test_style_inline():
     assert html('((style "color: red") "text")') == '<span style="color: red">text</span>'
+
+
+def test_list_unordered():
+    assert (
+        html('(list-unordered "hello" ($ "a" "b") "c")')
+        == '<ul><li>hello</li><li>ab</li><li>c</li></ul>'
+    )
+
+
+def test_list_ordered():
+    assert (
+        html('(list-ordered "hello" ($ "a" "b") "c")')
+        == '<ol><li>hello</li><li>ab</li><li>c</li></ol>'
+    )
