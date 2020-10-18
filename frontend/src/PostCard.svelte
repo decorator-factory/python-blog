@@ -20,6 +20,8 @@
 
         max-width: 40em;
         margin-bottom: 7mm;
+
+        transition: 0.2s;
     }
 
     .post .uid {
@@ -42,14 +44,20 @@
     .post .content {
         grid-area: body;
         padding: 0.5em;
+        background: white;
     }
 
     .post div {
         border: 1px solid black;
     }
+
+    .large {
+        width: 90%;
+        max-width: 100em;
+    }
 </style>
 
-<div class="post">
+<div class="post" class:large={show}>
     <div class="uid"><span class="centered">{post.uid}</span></div>
     <div class="title">{post.title}</div>
     <div class="content">
