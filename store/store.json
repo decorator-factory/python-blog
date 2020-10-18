@@ -1,5 +1,6 @@
 {
     "posts": [
-        { "uid": 1, "title": "Test article", "path": "test.clj" }
+        { "uid": 1, "title": "Test article", "path": "test.clj" },
+        { "uid": 2, "title": "Some misleading statements about Python", "path": "some_misconceptions.clj" }
     ]
 }
