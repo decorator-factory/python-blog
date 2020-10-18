@@ -45,19 +45,20 @@ async def setup_sqlite_from_config():
         CREATE TABLE IF NOT EXISTS posts (
             uid INTEGER PRIMARY KEY,
             title VARCHAR(256),
-            content TEXT
+            content TEXT,
+            position INTEGER
         );
     """)).close()
     await conn.commit()
 
     async with aiofiles.open(Path("store/store.json")) as config:  # type: ignore
         data = json.loads(await config.read())
-        for post in data["posts"]:
+        for i, post in enumerate(data["posts"]):
             async with aiofiles.open(Path("store") / post["path"]) as file:  # type: ignore
                 content = content_parser.html(await file.read())
             cursor = await conn.execute("""--sql
-                INSERT INTO posts (uid, title, content) VALUES (?, ?, ?);
-            """, (post["uid"], post["title"], content))
+                INSERT INTO posts (uid, title, content, position) VALUES (?, ?, ?, ?);
+            """, (post["uid"], post["title"], content, i))
             await cursor.close()
     await conn.commit()
 
@@ -78,8 +79,8 @@ async def reload_sqlite():
 
 
 async def live_reload():
-    print("Live reloading the store...")
     async for _ in watchgod.awatch("store/"):
+        print("Live reloading the store...")
         await reload_sqlite()
 
 
@@ -118,7 +119,7 @@ async def get_post(uid: int) -> Post:
 async def index_posts() -> List[Post]:
     conn = await get_sqlite_connection()
     async with conn.execute(
-        "SELECT uid, title, content FROM posts"
+        "SELECT uid, title, content FROM posts ORDER BY position"
     ) as cursor:
         posts = []
         async for row in cursor:
