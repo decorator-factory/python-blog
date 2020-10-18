@@ -46,3 +46,26 @@ def test_overloaded_function():
 
     assert add.call(e.Integer(5), e.Integer(4)) == e.Integer(9)
     assert add.call(e.String("ab"), e.String("cd")) == e.String("abcd")
+
+
+def test_sexpr():
+    add = e.Function({
+        et.TFunction(
+            (et.TInt(), et.TInt()),
+            None,
+            et.TInt()
+        ): lambda x, y: e.Integer(x.value + y.value)
+    })
+
+    runtime = {"+": add}
+
+    sexpr = e.Sexpr(
+        e.Name("+"),
+        (e.Integer(5), e.Integer(4))
+    )
+
+    # before evaluation, Sexpr doesn't have a definite type
+    assert sexpr.ty == et.TAny()
+    assert sexpr.evaluate(runtime) == e.Integer(9)
+    # .evaluate mutates a Sexpr and assigns a type to it
+    assert sexpr.ty == et.TInt()

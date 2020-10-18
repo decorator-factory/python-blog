@@ -21,7 +21,7 @@ class Entity:
         return self
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(eq=True)
 class Name(Entity):
     name: str
 
@@ -35,9 +35,32 @@ class Name(Entity):
             return self._cached.ty
 
     def evaluate(self, runtime) -> Entity:
-        self._cached = runtime.find_entity_by_name(self.name)
+        self._cached = runtime[self.name]
         if self._cached is None:
             raise KeyError(f"Name {self.name} not found")
+        return self._cached
+
+
+@dataclass(eq=True)
+class Sexpr(Entity):
+    fn: Entity
+    args: Tuple[Entity, ...]
+
+    _cached: Optional[Entity] = None
+
+    @property
+    def ty(self):
+        if self._cached is None:
+            return et.TAny()
+        return self._cached.ty
+
+    def evaluate(self, runtime):
+        self.fn = self.fn.evaluate(runtime)
+        if not hasattr(self.fn, "call"):
+            raise TypeError(f"Trying to call {self.fn.ty.signature()}")
+        self.args = tuple(e.evaluate(runtime) for e in self.args)
+        self._cached = self.fn.call(*self.args).evaluate(runtime) # type: ignore
+        assert self._cached is not None
         return self._cached
 
 
@@ -125,7 +148,8 @@ class Function(Entity):
                             break
 
                     return f(*positional_args, *rest_args)
-        raise TypeError(f"Cannot call {self} with {args}")
+        arg_types_repr = "(" + ", ".join(e.ty.signature() for e in args) + ")"
+        raise TypeError(f"Cannot call {self} with {arg_types_repr}")
 
 
     def return_type_when_called_with(self, *, args, rest):
