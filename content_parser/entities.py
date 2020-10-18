@@ -93,8 +93,9 @@ class InlineTag(Entity):
     ty = et.TInline()
 
     def render_inline(self):
+        option_str = " "*(self.options != "") + self.options
         return (
-             f"<{self.tag} {self.options}>"
+             f"<{self.tag}{option_str}>"
             + "".join(e.render_inline() for e in self.children) # type: ignore
             +f"</{self.tag}>"
         )
@@ -109,11 +110,32 @@ class BlockTag(Entity):
     ty = et.TBlock()
 
     def render_block(self):
+        option_str = " "*(self.options != "") + self.options
         return (
-             f"<{self.tag} {self.options}>"
+             f"<{self.tag}{option_str}>"
             + "".join(e.render() for e in self.children)
             +f"</{self.tag}>"
         )
+
+
+@dataclass(frozen=True, eq=True)
+class InlineConcat(Entity):
+    children: Tuple[Entity, ...]
+
+    ty = et.TInline()
+
+    def render_inline(self):
+        return "".join(e.render_inline() for e in self.children) # type: ignore
+
+
+@dataclass(frozen=True, eq=True)
+class BlockConcat(Entity):
+    children: Tuple[Entity, ...]
+
+    ty = et.TBlock()
+
+    def render_block(self):
+        return "".join(e.render() for e in self.children) # type: ignore
 
 
 @dataclass(frozen=True, eq=True)
