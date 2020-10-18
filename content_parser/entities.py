@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Callable, Dict, Tuple
+from typing import Callable, Dict, Optional, Tuple
 from content_parser import entity_types as et
 import html
 
@@ -8,7 +8,7 @@ import html
 class Entity:
     @property
     def ty(self):
-        return et.TAny
+        return et.TAny()
 
     def render(self) -> str:
         if hasattr(self, "render_inline"):
@@ -16,6 +16,29 @@ class Entity:
         if hasattr(self, "render_block"):
             return self.render_block() # type: ignore
         raise TypeError(f"Cannot render {self}")
+
+    def evaluate(self, runtime) -> Entity:
+        return self
+
+
+@dataclass(frozen=True, eq=True)
+class Name(Entity):
+    name: str
+
+    _cached: Optional[Entity] = None
+
+    @property
+    def ty(self):
+        if self._cached is None:
+            return et.TAny()
+        else:
+            return self._cached.ty
+
+    def evaluate(self, runtime) -> Entity:
+        self._cached = runtime.find_entity_by_name(self.name)
+        if self._cached is None:
+            raise KeyError(f"Name {self.name} not found")
+        return self._cached
 
 
 @dataclass(frozen=True, eq=True)
