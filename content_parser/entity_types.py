@@ -40,7 +40,7 @@ class TBlock(EntityType):
 @adt
 class IInl(EntityType):
     def match(self, value):
-        return hasattr(value, "to_inline")
+        return hasattr(value, "render_inline")
 
     def signature(self):
         return "Inl"
@@ -49,7 +49,7 @@ class IInl(EntityType):
 @adt
 class IBlk(EntityType):
     def match(self, value):
-        return hasattr(value, "to_block")
+        return hasattr(value, "render_block")
 
     def signature(self):
         return "Blk"
