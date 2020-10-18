@@ -1,9 +1,5 @@
-from content_parser.entities import Entity
 from dataclasses import dataclass
 from typing import Optional, Tuple
-
-
-adt = dataclass(frozen=True, eq=True)
 
 
 class EntityType:
@@ -14,7 +10,7 @@ class EntityType:
         raise NotImplementedError
 
 
-@adt
+@dataclass(frozen=True, eq=True)
 class TAny(EntityType):
     def match(self, _value):
         return True
@@ -23,31 +19,31 @@ class TAny(EntityType):
         return "Any"
 
 
-@adt
+@dataclass(frozen=True, eq=True)
 class TInt(EntityType):
     def signature(self):
         return "int"
 
 
-@adt
+@dataclass(frozen=True, eq=True)
 class TStr(EntityType):
     def signature(self):
         return "str"
 
 
-@adt
+@dataclass(frozen=True, eq=True)
 class TInline(EntityType):
     def signature(self):
         return "inline"
 
 
-@adt
+@dataclass(frozen=True, eq=True)
 class TBlock(EntityType):
     def signature(self):
         return "block"
 
 
-@adt
+@dataclass(frozen=True, eq=True)
 class IInl(EntityType):
     def match(self, value):
         return hasattr(value, "render_inline")
@@ -56,7 +52,7 @@ class IInl(EntityType):
         return "Inl"
 
 
-@adt
+@dataclass(frozen=True, eq=True)
 class IBlk(EntityType):
     def match(self, value):
         return hasattr(value, "render_block")
@@ -65,7 +61,7 @@ class IBlk(EntityType):
         return "Blk"
 
 
-@adt
+@dataclass(frozen=True, eq=True)
 class IRen(EntityType):
     def match(self, value):
         return IInl().match(value) or IBlk().match(value)
@@ -74,7 +70,7 @@ class IRen(EntityType):
         return "Ren"
 
 
-@adt
+@dataclass(frozen=True, eq=True)
 class TFunction(EntityType):
     arg_types: Tuple[EntityType, ...]
     rest_type: Optional[EntityType]
@@ -94,4 +90,15 @@ class TFunction(EntityType):
         if self.rest_type is not None:
             args_repr += " ..." + self.rest_type.signature()
         return_repr = self.return_type.signature()
-        return "(λ {args_repr} . {return_repr})"
+        return f"(λ {args_repr} . {return_repr})"
+
+
+@dataclass(frozen=True, eq=True)
+class TUnion(EntityType):
+    variants: Tuple[EntityType, ...]
+
+    def match(self, value):
+        return any(t.match(value) for t in self.variants)
+
+    def signature(self):
+        return "|".join(t.signature() for t in self.variants)
