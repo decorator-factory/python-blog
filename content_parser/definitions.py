@@ -33,10 +33,18 @@ def italics():
     yield ((), et.IInl(), et.TInline(), from_inline)
 
 
+@fn("tt")
+def tt():
+    def from_inline(*args):
+        return e.InlineTag("tt", "", args)
+    yield ((), et.IInl(), et.TInline(), from_inline)
+
+
 @fn("mono")
 def monospace():
     def from_inline(*args):
-        return e.InlineTag("tt", "", args)
+        # (mono ...args) = (nobr (tt ...args))
+        return e.Sexpr(nobr, (e.Sexpr(tt, args),))
     yield ((), et.IInl(), et.TInline(), from_inline)
 
 
