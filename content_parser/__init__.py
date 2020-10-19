@@ -61,6 +61,7 @@ def html(source: str, extensions: Iterable[Tuple[str, e.Entity]] = ()) -> str:
         return expr.render(runtime).as_text()
     except e.CallError as call_error:
         error = call_error.msg
+    except:
+        raise
     # raise the exception without the internal traceback:
-    if error is not None:
-        raise ContentTypeError(error)
+    raise ContentTypeError(error)
