@@ -165,12 +165,18 @@ def map_function():
     INPUT_FN_INLINE2 = et.TFunction((), et.IInl(), et.TInline()) # HACK
     FN_TYPE_INLINE = et.TFunction((), et.IInl(), et.TInline())
 
+    INPUT_FN_STR = et.TFunction((et.TStr(),), None, et.TInline())
+    INPUT_FN_STR2 = et.TFunction((), et.TStr(), et.TInline())
+    FN_TYPE_STR = et.TFunction((), et.TStr(), et.TInline())
+
     def from_fn_inline(fn):
         def from_inl(*args):
             return e.InlineConcat(tuple(e.Sexpr(fn, (arg,)) for arg in args))
         return e.Function({FN_TYPE_INLINE: from_inl})
     yield ((INPUT_FN_INLINE,), None, FN_TYPE_INLINE, from_fn_inline)
     yield ((INPUT_FN_INLINE2,), None, FN_TYPE_INLINE, from_fn_inline) # HACK
+    yield ((INPUT_FN_STR,), None, FN_TYPE_STR, from_fn_inline)
+    yield ((INPUT_FN_STR2,), None, FN_TYPE_STR, from_fn_inline)
 
 
     INPUT_FN_BLOCK = et.TFunction((et.IRen(),), None, et.TBlock())
