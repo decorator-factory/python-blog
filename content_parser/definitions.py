@@ -22,9 +22,6 @@ def fn(name: str):
 @fn("bf")
 def boldface():
     def from_inline(*args):
-        for arg in args:
-            if not et.IInl().match(arg):
-                raise TypeError(f"bf: Expected :`Inl`, got {arg}:{arg.ty}")
         return e.InlineTag("b", "", args)
     yield ((), et.IInl(), et.TInline(), from_inline)
 
@@ -32,9 +29,6 @@ def boldface():
 @fn("it")
 def italics():
     def from_inline(*args):
-        for arg in args:
-            if not et.IInl().match(arg):
-                raise TypeError(f"it: Expected :`Inl`, got {arg}:{arg.ty}")
         return e.InlineTag("i", "", args)
     yield ((), et.IInl(), et.TInline(), from_inline)
 
@@ -42,9 +36,6 @@ def italics():
 @fn("mono")
 def monospace():
     def from_inline(*args):
-        for arg in args:
-            if not et.IInl().match(arg):
-                raise TypeError(f"mono: Expected :`Inl`, got {arg}:{arg.ty}")
         return e.InlineTag("tt", "", args)
     yield ((), et.IInl(), et.TInline(), from_inline)
 
@@ -52,8 +43,6 @@ def monospace():
 @fn("e")
 def entity():
     def from_str(s):
-        if not et.TStr().match(s):
-            raise TypeError(f"e: Expected :`str`, got {s}:{s.ty}")
         return e.InlineRaw(f"&{s.value};")
     yield ((et.TStr(),), None, et.TInline(), from_str)
 
@@ -61,16 +50,10 @@ def entity():
 @fn("$")
 def concat():
     def from_inline(*args):
-        for arg in args:
-            if not et.IInl().match(arg):
-                raise TypeError(f"$: Expected :`Inl`, got {arg}:{arg.ty}")
         return e.InlineConcat(args)
     yield ((), et.IInl(), et.TInline(), from_inline)
 
     def from_mixed(*args):
-        for arg in args:
-            if not et.IRen().match(arg):
-                raise TypeError(f"$: Expected :`Ren`, got {arg}:{arg.ty}")
         return e.BlockConcat(args)
     yield ((), et.IRen(), et.IRen(), from_mixed)
 
@@ -81,9 +64,6 @@ def heading():
 
     def from_int(n: e.Integer):
         def from_inline(*args):
-            for arg in args:
-                if not et.IInl().match(arg):
-                    raise TypeError(f"(h {n.value}): Expected :`Inl`, got {arg}:{arg.ty}")
             return e.BlockTag(f"h{n.value}", "", args)
         return e.Function({FN_TYPE: from_inline})
     yield ((et.TInt(),), None, FN_TYPE, from_int)
@@ -95,9 +75,6 @@ def style_inline():
 
     def from_str(s: e.String):
         def from_inline(*args):
-            for arg in args:
-                if not et.IInl().match(arg):
-                    raise TypeError(f'(style "..."): Expected :`Inl`, got {arg}:{arg.ty}')
             return e.InlineTag("span", "style=" + json.dumps(s.value), args)
         return e.Function({FN_TYPE: from_inline})
     yield ((), et.TStr(), FN_TYPE, from_str)
@@ -106,9 +83,6 @@ def style_inline():
 @fn("list-unordered")
 def list_unordered():
     def from_inline(*args):
-        for arg in args:
-            if not et.IInl().match(arg):
-                raise TypeError(f"list-unordered: Expected :`Inl`, got {arg}:{arg.ty}")
         return e.BlockTag(
             "ul",
             "",
@@ -120,9 +94,6 @@ def list_unordered():
 @fn("list-ordered")
 def list_ordered():
     def from_inline(*args):
-        for arg in args:
-            if not et.IInl().match(arg):
-                raise TypeError(f"list-ordered: Expected :`Inl`, got {arg}:{arg.ty}")
         return e.BlockTag(
             "ol",
             "",
@@ -134,9 +105,6 @@ def list_ordered():
 @fn("p")
 def paragraph():
     def from_inline(*args):
-        for arg in args:
-            if not et.IRen().match(arg):
-                raise TypeError(f"p: Expected :`Ren`, got {arg}:{arg.ty}")
         return e.BlockTag("p", "", args)
     yield ((), et.IRen(), et.TBlock(), from_inline)
 
@@ -144,10 +112,6 @@ def paragraph():
 @fn("a")
 def link():
     def from_str_inline(adr, text):
-        if not et.TStr().match(adr):
-            raise TypeError(f"a: Expected :`str`, got {adr}:{adr.ty}")
-        if not et.IInl().match(text):
-            raise TypeError(f"a: Expected :`Inl`, got {adr}:{adr.ty}")
         return e.InlineTag("a", f"href={json.dumps(adr.value)}", (text,))
     yield ((et.TStr(), et.IInl()), None, et.TInline(), from_str_inline)
 
@@ -176,9 +140,6 @@ def newline():
 @fn("pre")
 def pre():
     def from_inline(*args):
-        for arg in args:
-            if not et.TStr().match(arg):
-                raise TypeError(f"p: Expected :`str`, got {arg}:{arg.ty}")
         elements = []
         for arg in args:
             elements.append(arg)
@@ -247,11 +208,6 @@ def separated():
 
     def from_str(separator):
         def from_inline(*args):
-            if not et.IInl().match(separator):
-                raise TypeError(f"sep: Expected :`Inl`, got {separator}:{separator.ty}")
-            for arg in args:
-                if not et.IInl().match(arg):
-                    raise TypeError(f"(sep ...): Expected :`Inl`, got {arg}:{arg.ty}")
             elements = []
             for arg in args:
                 elements.append(arg)
