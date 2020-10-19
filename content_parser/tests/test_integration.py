@@ -61,6 +61,13 @@ def test_sepmap():
     )
 
 
+def test_nobr():
+    assert (
+        html('(nobr (p "h e l l o" (bf "w o r l d")))')
+        == '<p>h&nbsp;e&nbsp;l&nbsp;l&nbsp;o<b>w&nbsp;o&nbsp;r&nbsp;l&nbsp;d</b></p>'
+    )
+
+
 def test_readme_example():
     SOURCE = """
         ; this is a comment

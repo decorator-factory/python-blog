@@ -257,3 +257,43 @@ class Function(Entity):
             if o.arg_types == args and o.rest_type == rest:
                 return o.return_type
         return None
+
+
+@dataclass(eq=True)
+class AfterRender(Entity):
+    """
+    Apply the function to the rendered content of an element.
+    For example, the `nobr` function replaces every ` ` with `&nbsp;`
+    """
+    subexpr: Entity
+    fn: Callable[[str], str]
+
+    @property
+    def ty(self):
+        return self.subexpr.ty
+
+    def evaluate(self, runtime):
+        self.subexpr = self.subexpr.evaluate(runtime)
+        return self
+
+    def render(self, runtime):
+        return self.subexpr.render(runtime).fmap(self.fn)
+
+    # whether an Entity is renderable as inline or as block is determined
+    # by it having a render_inline or render_block attribute, so this is
+    # necessary to preserve strong typing:
+    def __getattr__(self, attr):
+        if attr == "render_inline":
+            if hasattr(self.subexpr, "render_inline"):
+                return self.subexpr.render_inline  # type: ignore
+        elif attr == "render_block":
+            if hasattr(self.subexpr, "render_block"):
+                return self.subexpr.render_block  # type: ignore
+        else:
+            raise AttributeError(attr)
+
+    def _render_inline(self, runtime):
+        return self.subexpr.render_inline(runtime).fmap(self.fn)  # type: ignore
+
+    def _render_block(self, runtime):
+        return self.subexpr.render_block(runtime).fmap(self.fn)  # type: ignore

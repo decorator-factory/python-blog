@@ -217,3 +217,12 @@ def separated():
             return e.InlineConcat(tuple(elements))
         return e.Function({FN_TYPE: from_inline})
     yield ((et.IInl(),), None, FN_TYPE, from_str)
+
+
+
+@fn("nobr")
+def nobr():
+    def from_ren(ren: e.Entity):
+        return e.AfterRender(ren, lambda s: s.replace(" ", "&nbsp;"))
+    yield ((et.IInl(),), None, et.TInline(), from_ren)
+    yield ((et.IBlk(),), None, et.TBlock(), from_ren)
