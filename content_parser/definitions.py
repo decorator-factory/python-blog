@@ -227,10 +227,16 @@ def separated():
     yield ((et.IInl(),), None, FN_TYPE, from_str)
 
 
-
 @fn("nobr")
 def nobr():
     def from_ren(ren: e.Entity):
         return e.AfterRender(ren, lambda s: s.replace(" ", "&nbsp;"))
     yield ((et.IInl(),), None, et.TInline(), from_ren)
     yield ((et.IBlk(),), None, et.TBlock(), from_ren)
+
+
+@fn("type")
+def debug_type():
+    def from_any(obj: e.Entity):
+        return e.String(obj.ty.signature())
+    yield((et.TAny(),), None, et.TInline(), from_any)
