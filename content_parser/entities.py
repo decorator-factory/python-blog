@@ -28,6 +28,21 @@ class RawHtml(Render):
 
 
 @dataclass
+class SafeHtml(Render):
+    unsafe_content: str
+    _after_escape: Callable[[str], str] = staticmethod(lambda s: s)  # type: ignore
+
+    def as_text(self) -> str:
+        return self._after_escape(html.escape(self.unsafe_content, quote=True))
+
+    def fmap(self, fn: Callable[[str], str]):
+        return SafeHtml(
+            self.unsafe_content,
+            _after_escape=lambda s: fn(self._after_escape(s))
+        )
+
+
+@dataclass
 class HtmlTag(Render):
     tag: str
     options: str
@@ -103,13 +118,19 @@ class CallError(Exception):
         self.args = (msg, propagate)
 
 
-@dataclass(eq=True)
+@dataclass
 class Sexpr(Entity):
     fn: Entity
     args: Tuple[Entity, ...]
 
     _position: Optional[Tuple[int, int]] = None # (line, column)
     _cached: Optional[Entity] = None
+
+    def __eq__(self, other):
+        if not isinstance(other, Sexpr):
+            return NotImplemented
+
+        return (self.fn, self.args) == (other.fn, other.args)
 
     @property
     def ty(self):
@@ -166,7 +187,7 @@ class String(Entity):
     ty = et.TStr()
 
     def render_inline(self, runtime):
-        return RawHtml(html.escape(self.value, quote=True))
+        return SafeHtml(self.value)
 
 
 @dataclass(frozen=True, eq=True)
