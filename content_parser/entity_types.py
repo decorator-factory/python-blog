@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 
 class EntityType:
     def match(self, value):
-        return value.ty == self
+        return value.ty == self or value.ty == TAny()
 
     def signature(self):
         raise NotImplementedError
@@ -46,6 +46,8 @@ class TBlock(EntityType):
 @dataclass(frozen=True, eq=True)
 class IInl(EntityType):
     def match(self, value):
+        if super().match(value):
+            return True
         return hasattr(value, "render_inline")
 
     def signature(self):
@@ -55,6 +57,8 @@ class IInl(EntityType):
 @dataclass(frozen=True, eq=True)
 class IBlk(EntityType):
     def match(self, value):
+        if super().match(value):
+            return True
         return hasattr(value, "render_block")
 
     def signature(self):
@@ -64,6 +68,8 @@ class IBlk(EntityType):
 @dataclass(frozen=True, eq=True)
 class IRen(EntityType):
     def match(self, value):
+        if super().match(value):
+            return True
         return IInl().match(value) or IBlk().match(value)
 
     def signature(self):
@@ -77,6 +83,8 @@ class TFunction(EntityType):
     return_type: EntityType
 
     def match(self, value):
+        if super().match(value):
+            return True
         return (
             hasattr(value, "call")
             and value.return_type_when_called_with(
@@ -98,6 +106,8 @@ class TUnion(EntityType):
     variants: Tuple[EntityType, ...]
 
     def match(self, value):
+        if super().match(value):
+            return True
         return any(t.match(value) for t in self.variants)
 
     def signature(self):
