@@ -68,7 +68,7 @@ def concat():
 
 @fn("h")
 def heading():
-    FN_TYPE = et.TFunction((), et.IInl(), et.TInline())
+    FN_TYPE = et.TFunction((), et.IInl(), et.TBlock())
 
     def from_int(n: e.Integer):
         def from_inline(*args):
