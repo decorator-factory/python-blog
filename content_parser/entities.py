@@ -1,8 +1,62 @@
 from __future__ import annotations
+import json
 from dataclasses import dataclass
-from typing import Callable, Dict, Optional, Tuple
+from typing import Callable, Dict, Sequence, TypeVar, Optional, Tuple
 from content_parser import entity_types as et
 import html
+
+
+R = TypeVar("R", bound="Render")
+
+class Render:
+    def as_text(self) -> str:
+        raise NotImplementedError
+
+    def fmap(self: R, fn: Callable[[str], str]) -> R:
+        raise NotImplementedError
+
+
+@dataclass
+class RawHtml(Render):
+    content: str
+
+    def as_text(self) -> str:
+        return self.content
+
+    def fmap(self, fn: Callable[[str], str]):
+        return RawHtml(fn(self.content))
+
+
+@dataclass
+class HtmlTag(Render):
+    tag: str
+    options: str
+    content: Sequence[Render]
+
+    def as_text(self) -> str:
+        options = "" if self.options == "" else " " + self.options
+        return (
+             f"<{self.tag}{options}>"
+            + "".join(r.as_text() for r in self.content)
+            +f"</{self.tag}>"
+        )
+
+    def fmap(self, fn: Callable[[str], str]):
+        return HtmlTag(
+            self.tag,
+            self.options,
+            [r.fmap(fn) for r in self.content]
+        )
+
+@dataclass
+class Concat(Render):
+    children: Sequence[Render]
+
+    def as_text(self) -> str:
+        return "".join(r.as_text() for r in self.children)
+
+    def fmap(self, fn: Callable[[str], str]):
+        return Concat([r.fmap(fn) for r in self.children])
 
 
 class Entity:
@@ -10,7 +64,7 @@ class Entity:
     def ty(self):
         return et.TAny()
 
-    def render(self, runtime) -> str:
+    def render(self, runtime) -> Render:
         e = self.evaluate(runtime)
         if hasattr(e, "render_inline"):
             return e.render_inline(runtime) # type: ignore
@@ -42,6 +96,7 @@ class Name(Entity):
         return self._cached
 
 
+
 @dataclass(eq=True)
 class Sexpr(Entity):
     fn: Entity
@@ -71,8 +126,8 @@ class Integer(Entity):
 
     ty = et.TInt()
 
-    def render_inline(self, runtime):
-        return str(self.value)
+    def render_inline(self, runtime) -> Render:
+        return RawHtml(str(self.value))
 
 
 @dataclass(frozen=True, eq=True)
@@ -82,7 +137,7 @@ class String(Entity):
     ty = et.TStr()
 
     def render_inline(self, runtime):
-        return html.escape(self.value, quote=True)
+        return RawHtml(html.escape(self.value, quote=True))
 
 
 @dataclass(frozen=True, eq=True)
@@ -94,11 +149,10 @@ class InlineTag(Entity):
     ty = et.TInline()
 
     def render_inline(self, runtime):
-        option_str = " "*(self.options != "") + self.options
-        return (
-             f"<{self.tag}{option_str}>"
-            + "".join(e.render_inline(runtime) for e in self.children) # type: ignore
-            +f"</{self.tag}>"
+        return HtmlTag(
+            self.tag,
+            self.options,
+            [c.render_inline(runtime) for c in self.children]  # type: ignore
         )
 
 
@@ -111,11 +165,10 @@ class BlockTag(Entity):
     ty = et.TBlock()
 
     def render_block(self, runtime):
-        option_str = " "*(self.options != "") + self.options
-        return (
-             f"<{self.tag}{option_str}>"
-            + "".join(e.render(runtime) for e in self.children)
-            +f"</{self.tag}>"
+        return HtmlTag(
+            self.tag,
+            self.options,
+            [c.render(runtime) for c in self.children]  # type: ignore
         )
 
 
@@ -126,7 +179,7 @@ class InlineRaw(Entity):
     ty = et.TInline()
 
     def render_inline(self, runtime):
-        return self.html
+        return RawHtml(self.html)
 
 
 @dataclass(frozen=True, eq=True)
@@ -136,7 +189,7 @@ class BlockRaw(Entity):
     ty = et.TInline()
 
     def render_block(self, runtime):
-        return self.html
+        return RawHtml(self.html)
 
 
 @dataclass(frozen=True, eq=True)
@@ -146,7 +199,7 @@ class InlineConcat(Entity):
     ty = et.TInline()
 
     def render_inline(self, runtime):
-        return "".join(e.render_inline(runtime) for e in self.children) # type: ignore
+        return Concat([e.render_inline(runtime) for e in self.children])  # type: ignore
 
 
 @dataclass(frozen=True, eq=True)
@@ -156,7 +209,7 @@ class BlockConcat(Entity):
     ty = et.TBlock()
 
     def render_block(self, runtime):
-        return "".join(e.render(runtime) for e in self.children) # type: ignore
+        return Concat([e.render(runtime) for e in self.children])  # type: ignore
 
 
 @dataclass(frozen=True, eq=True)

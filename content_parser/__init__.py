@@ -50,4 +50,4 @@ def html(source: str, extensions: Iterable[Tuple[str, e.Entity]] = ()) -> str:
     runtime = {**definitions.BUILTINS}
     runtime.update(extensions)
     expr = parse(source).evaluate(runtime)
-    return expr.render(runtime)
+    return expr.render(runtime).as_text()
