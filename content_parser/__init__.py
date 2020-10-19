@@ -1,7 +1,7 @@
 import re
 import json # json is needed to decode a string
 from textwrap import dedent
-from typing import Mapping
+from typing import Iterable, Mapping, Tuple
 from lark import Lark, Transformer, v_args
 from . import entities as e
 from . import entity_types as et
@@ -46,13 +46,8 @@ def parse(source: str) -> e.Entity:
     return parser.parse(source)  # type: ignore
 
 
-def run_with_runtime(source: str, runtime: Mapping[str, e.Entity]) -> e.Entity:
-    parsed = parse(source)
-    return parsed.evaluate(runtime)
-
-def run(source: str) -> e.Entity:
-    return run_with_runtime(source, definitions.BUILTINS)
-
-def html(source: str) -> str:
-    result = run(source)
-    return result.render(definitions.BUILTINS)
+def html(source: str, extensions: Iterable[Tuple[str, e.Entity]] = ()) -> str:
+    runtime = {**definitions.BUILTINS}
+    runtime.update(extensions)
+    expr = parse(source).evaluate(runtime)
+    return expr.render(runtime)
