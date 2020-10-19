@@ -96,12 +96,19 @@ class Name(Entity):
         return self._cached
 
 
+class CallError(Exception):
+    def __init__(self, msg: str, propagate: bool):
+        self.msg = msg
+        self.propagate = propagate
+        self.args = (msg, propagate)
+
 
 @dataclass(eq=True)
 class Sexpr(Entity):
     fn: Entity
     args: Tuple[Entity, ...]
 
+    _position: Optional[Tuple[int, int]] = None # (line, column)
     _cached: Optional[Entity] = None
 
     @property
@@ -110,12 +117,34 @@ class Sexpr(Entity):
             return et.TAny()
         return self._cached.ty
 
+    def _type_mismatch(self, msg: str):
+        # If we know where this s-expression is located, we need to stop
+        # propagating the error and abort. Otherwise, the line and column
+        # are known upstream
+        if self._position is None:
+            raise CallError(msg, propagate=True)
+        else:
+            line, column = self._position
+            raise CallError(msg.format(line=line, column=column), propagate=False)
+
     def evaluate(self, runtime):
         self.fn = self.fn.evaluate(runtime)
         if not hasattr(self.fn, "call"):
-            raise TypeError(f"Trying to call {self.fn.ty.signature()}")
+            self._type_mismatch(
+                f"Trying to call {self.fn.ty.signature()}"
+                " (line {line}, column {column})"
+            )
         self.args = tuple(e.evaluate(runtime) for e in self.args)
-        self._cached = self.fn.call(*self.args).evaluate(runtime) # type: ignore
+
+        error = None
+        try:
+            self._cached = self.fn.call(*self.args).evaluate(runtime) # type: ignore
+        except TypeError as e:
+            error = "".join(e.args) + " (line {line}, column {column})"
+        # raise the exception without the long traceback:
+        if error is not None:
+            self._type_mismatch(error)
+
         assert self._cached is not None
         return self._cached
 

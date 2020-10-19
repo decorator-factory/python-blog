@@ -1,7 +1,7 @@
 import re
 import json # json is needed to decode a string
 from textwrap import dedent
-from typing import Iterable, Mapping, Tuple
+from typing import Iterable, Tuple
 from lark import Lark, Transformer, v_args
 from . import entities as e
 from . import entity_types as et
@@ -30,8 +30,8 @@ class LanguageTransformer(Transformer):
         return e.Name(str(token))
 
     @staticmethod
-    def sexpr(fn, *args):
-        return e.Sexpr(fn, args)
+    def sexpr(left_paren, fn, *args):
+        return e.Sexpr(fn, args, _position=(left_paren.line, left_paren.column))
 
 
 parser = Lark.open(
@@ -39,6 +39,7 @@ parser = Lark.open(
     rel_to=__file__,
     parser="lalr",
     transformer=LanguageTransformer(),
+    propagate_positions=True,
 )
 
 
@@ -46,8 +47,20 @@ def parse(source: str) -> e.Entity:
     return parser.parse(source)  # type: ignore
 
 
+class ContentTypeError(TypeError):
+    pass
+
+
 def html(source: str, extensions: Iterable[Tuple[str, e.Entity]] = ()) -> str:
     runtime = {**definitions.BUILTINS}
     runtime.update(extensions)
-    expr = parse(source).evaluate(runtime)
-    return expr.render(runtime).as_text()
+
+    error = None
+    try:
+        expr = parse(source).evaluate(runtime)
+        return expr.render(runtime).as_text()
+    except e.CallError as call_error:
+        error = call_error.msg
+    # raise the exception without the internal traceback:
+    if error is not None:
+        raise ContentTypeError(error)
