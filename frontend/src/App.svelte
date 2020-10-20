@@ -28,10 +28,11 @@
         .then(r => r.json()) // it's actually a JSON-encoded string, so it's fine
     ;
 
-    const post = {
-        uid: 42,
-        title: 'Hello, world!',
-        content: 'Content!!!'
+    const selectTag = ({detail: {tag}}) => {
+        if (selectedTag === tag)
+            selectedTag = "";
+        else
+            selectedTag = tag;
     };
 </script>
 
@@ -51,7 +52,12 @@
             Loading posts...
         {:then _}
             {#each displayedPosts as post}
-                <PostCard {post} {getPostContent} currentTagFilter={selectedTag}/>
+                <PostCard
+                    {post}
+                    {getPostContent}
+                    currentTagFilter={selectedTag}
+                    on:tag-selected={selectTag}
+                />
             {/each}
         {/await}
     </div>

@@ -1,4 +1,7 @@
 <script>
+    import { createEventDispatcher } from 'svelte';
+    const dispatch = createEventDispatcher();
+
     export let currentTagFilter;
     export let getPostContent;
     export let post; // { uid: number, title: string, content: string? }
@@ -17,8 +20,11 @@
         tagFilter.endsWith("*")
             ? myTags.filter(t => t.startsWith(tagFilter.slice(0, -1)))
             : myTags.filter(t => t === tagFilter);
-
     $: matchedTags = getMatchedTags(post.tags, currentTagFilter);
+
+    const selectTag = tag => {
+        dispatch('tag-selected', { tag });
+    };
 </script>
 
 <style>
@@ -77,9 +83,15 @@
     }
 
     .tag {
-        color: #666666;
+        color: #737373;
         margin: 4px;
         padding: 2mm 1mm;
+        cursor: pointer;
+        transition: 0.1s;
+    }
+
+    .tag:hover {
+        color: #000000;
     }
 
     .selected-tag {
@@ -92,7 +104,11 @@
     <div class="title">{post.title}</div>
     <div class="tags">
         {#each post.tags as tag}
-            <span class="tag" class:selected-tag={matchedTags.includes(tag)}>{tag} </span>
+            <span
+                class="tag"
+                class:selected-tag={matchedTags.includes(tag)}
+                on:click={selectTag(tag)}
+            >{tag} </span>
         {/each}
     </div>
     <div class="content">
