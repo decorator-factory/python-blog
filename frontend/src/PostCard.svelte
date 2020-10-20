@@ -4,8 +4,9 @@
 
     let show = false;
     const toggleVisibility = () => {
-        getPostContent(post.uid).then(s => { content = s; });
         show = !show;
+        if (show)
+            getPostContent(post.uid).then(s => { content = s; });
     };
 
     let content = "Loading...";
