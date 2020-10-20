@@ -51,7 +51,7 @@
             Loading posts...
         {:then _}
             {#each displayedPosts as post}
-                <PostCard {post} {getPostContent}/>
+                <PostCard {post} {getPostContent} currentTagFilter={selectedTag}/>
             {/each}
         {/await}
     </div>

@@ -1,4 +1,5 @@
 <script>
+    export let currentTagFilter;
     export let getPostContent;
     export let post; // { uid: number, title: string, content: string? }
 
@@ -10,6 +11,14 @@
     };
 
     let content = "Loading...";
+
+
+    const getMatchedTags = (myTags, tagFilter) =>
+        tagFilter.endsWith("*")
+            ? myTags.filter(t => t.startsWith(tagFilter.slice(0, -1)))
+            : myTags.filter(t => t === tagFilter);
+
+    $: matchedTags = getMatchedTags(post.tags, currentTagFilter);
 </script>
 
 <style>
@@ -72,6 +81,10 @@
         margin: 4px;
         padding: 2mm 1mm;
     }
+
+    .selected-tag {
+        color: red;
+    }
 </style>
 
 <div class="post" class:large={show}>
@@ -79,7 +92,7 @@
     <div class="title">{post.title}</div>
     <div class="tags">
         {#each post.tags as tag}
-            <span class="tag">{tag} </span>
+            <span class="tag" class:selected-tag={matchedTags.includes(tag)}>{tag} </span>
         {/each}
     </div>
     <div class="content">
