@@ -1,4 +1,5 @@
 <script>
+    import { slide } from 'svelte/transition';
     import { createEventDispatcher } from 'svelte';
     const dispatch = createEventDispatcher();
 
@@ -99,7 +100,7 @@
     }
 </style>
 
-<div class="post" class:large={show}>
+<div class="post" class:large={show} transition:slide={{duration: 150}}>
     <div class="uid"><span class="centered">{post.uid}</span></div>
     <div class="title">{post.title}</div>
     <div class="tags">

@@ -51,7 +51,7 @@
         {#await getPosts()}
             Loading posts...
         {:then _}
-            {#each displayedPosts as post}
+            {#each displayedPosts as post (post.uid)}
                 <PostCard
                     {post}
                     {getPostContent}
