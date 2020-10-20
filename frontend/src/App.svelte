@@ -8,6 +8,11 @@
         .then(r => r.json())
     ;
 
+    const getPostContent = uid =>
+        fetch(`${API_ROOT}/posts/${uid}/content`)
+        .then(r => r.json()) // it's actually a JSON-encoded string, so it's fine
+    ;
+
     const post = {
         uid: 42,
         title: 'Hello, world!',
@@ -24,7 +29,7 @@
             Loading posts...
         {:then posts}
             {#each posts as post}
-                <PostCard {post}/>
+                <PostCard {post} {getPostContent}/>
             {/each}
         {/await}
     </div>

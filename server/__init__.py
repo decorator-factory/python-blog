@@ -119,16 +119,35 @@ async def get_post(uid: int) -> Post:
 
 
 @app.get("/posts", response_model=List[Post])
-async def index_posts() -> List[Post]:
+async def index_posts(include_content: Optional[bool] = None) -> List[Post]:
+    conn = await get_sqlite_connection()
+    if include_content:
+        async with conn.execute("SELECT uid, title, content FROM posts ORDER BY position") as cursor:
+            posts = []
+            async for row in cursor:
+                post = Post(uid=row["uid"], title=row["title"], content=row["content"])
+                posts.append(post)
+            return posts
+    else:
+        async with conn.execute("SELECT uid, title FROM posts ORDER BY position") as cursor:
+            posts = []
+            async for row in cursor:
+                post = Post(uid=row["uid"], title=row["title"], content=None)
+                posts.append(post)
+            return posts
+
+
+@app.get("/posts/{uid}/content", response_model=str)
+async def get_post_content(uid: int) -> str:
     conn = await get_sqlite_connection()
     async with conn.execute(
-        "SELECT uid, title, content FROM posts ORDER BY position"
+        "SELECT content FROM posts WHERE uid = ?",
+        (uid,)
     ) as cursor:
-        posts = []
-        async for row in cursor:
-            post = Post(uid=row["uid"], title=row["title"], content=row["content"])
-            posts.append(post)
-        return posts
+        row = await cursor.fetchone()
+        if row is None:
+            raise HTTPException(404, f"Post with uid={uid} not found")
+        return row["content"]
 
 
 app.mount("/", StaticFiles(directory="frontend/public"))

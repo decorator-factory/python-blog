@@ -1,8 +1,14 @@
 <script>
-    export let post; // { uid: number, title: string, content: string }
+    export let getPostContent;
+    export let post; // { uid: number, title: string, content: string? }
 
     let show = false;
-    const toggleVisibility = () => { show = !show; };
+    const toggleVisibility = () => {
+        getPostContent(post.uid).then(s => { content = s; });
+        show = !show;
+    };
+
+    let content = "Loading...";
 </script>
 
 <style>
@@ -62,7 +68,7 @@
         <button on:click={toggleVisibility}>{show ? 'Hide' : 'Show'}</button>
         {#if show}
             <div>
-            {@html post.content}
+            {@html content}
             </div>
         {/if}
     </div>
