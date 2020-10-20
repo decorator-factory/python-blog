@@ -3,37 +3,44 @@
         {
             "uid": 3,
             "title": "A better markup language?",
-            "path": "markup_lang.clj"
+            "path": "markup_lang.clj",
+            "tags": ["markup"]
         },
         {
             "uid": 4,
             "title": "Don't run blocking I/O in a coroutine",
-            "path": "python_short/sync_in_async.clj"
+            "path": "python_short/sync_in_async.clj",
+            "tags": ["python", "python-short"]
         },
         {
             "uid": 5,
             "title": "What is `self` in Python?",
-            "path": "python_short/what_is_self.clj"
+            "path": "python_short/what_is_self.clj",
+            "tags": ["python", "python-short"]
         },
         {
             "uid": 6,
             "title": "What data types does Python support?",
-            "path": "python_short/supported_datatypes.clj"
+            "path": "python_short/supported_datatypes.clj",
+            "tags": ["python", "python-short"]
         },
         {
             "uid": 7,
             "title": "What does a decorator return in Python?",
-            "path": "python_short/return_type_of_decorators.clj"
+            "path": "python_short/return_type_of_decorators.clj",
+            "tags": ["python", "python-short"]
         },
         {
             "uid": 8,
             "title": "Is Python interpreted or compiled?",
-            "path": "python_short/interpreted_or_compiled.clj"
+            "path": "python_short/interpreted_or_compiled.clj",
+            "tags": ["python", "python-short"]
         },
         {
             "uid": 9,
             "title": "What do <, >, <=, >= stand for in Python?",
-            "path": "python_short/comparisons.clj"
+            "path": "python_short/comparisons.clj",
+            "tags": ["python", "python-short"]
         }
 
     ]
