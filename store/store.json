@@ -4,13 +4,13 @@
             "uid": 3,
             "title": "A better markup language?",
             "path": "markup_lang.clj",
-            "tags": ["markup"]
+            "tags": ["markup", "types"]
         },
         {
             "uid": 4,
             "title": "Don't run blocking I/O in a coroutine",
             "path": "python_short/sync_in_async.clj",
-            "tags": ["python", "python-short"]
+            "tags": ["python", "python-short", "asyncio"]
         },
         {
             "uid": 5,
@@ -22,13 +22,13 @@
             "uid": 6,
             "title": "What data types does Python support?",
             "path": "python_short/supported_datatypes.clj",
-            "tags": ["python", "python-short"]
+            "tags": ["python", "python-short", "types"]
         },
         {
             "uid": 7,
             "title": "What does a decorator return in Python?",
             "path": "python_short/return_type_of_decorators.clj",
-            "tags": ["python", "python-short"]
+            "tags": ["python", "python-short", "types"]
         },
         {
             "uid": 8,
