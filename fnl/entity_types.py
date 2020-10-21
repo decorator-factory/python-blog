@@ -1,50 +1,79 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from . import entities as e
 
 
 class EntityType:
-    def match(self, value):
+    """
+    Represents the type of `fnl.entities.Entity`.
+
+    Used primarily for typechecking and dispatching functions.
+
+    Note that an `EntityType` represents an FNL type, not the concrete Python
+    type of an object. For example, a value of type `inline` can be one of
+    many different objects in `fnl.entities`.
+    """
+    def match(self, value: e.Entity) -> bool:
+        """Can a value be interpreted (casted into) this type?"""
         return value.ty == self or value.ty == TAny()
 
-    def signature(self):
+    def signature(self) -> str:
         raise NotImplementedError
 
 
 @dataclass(frozen=True, eq=True)
 class TAny(EntityType):
-    def match(self, _value):
+    """
+    The `any` type:
+
+    - can be casted from any type
+    - can be casted into any type
+    """
+    def match(self, value: e.Entity) -> bool:
         return True
 
-    def signature(self):
+    def signature(self) -> str:
         return "Any"
 
 
 @dataclass(frozen=True, eq=True)
 class TInt(EntityType):
-    def signature(self):
+    """The `int` type"""
+    def signature(self) -> str:
         return "int"
 
 
 @dataclass(frozen=True, eq=True)
 class TStr(EntityType):
-    def signature(self):
+    """The `str` type"""
+    def signature(self) -> str:
         return "str"
 
 
 @dataclass(frozen=True, eq=True)
 class TInline(EntityType):
-    def signature(self):
+    """The `inline` type -- an inline HTML element"""
+    def signature(self) -> str:
         return "inline"
 
 
 @dataclass(frozen=True, eq=True)
 class TBlock(EntityType):
+    """The `block` type -- a block HTML element"""
     def signature(self):
         return "block"
 
 
 @dataclass(frozen=True, eq=True)
 class IInl(EntityType):
+    """
+    The `Inl` pseudotype
+
+    - can be `str`, `int`, or `inline`
+    - can be casted to `inline`
+    """
     def match(self, value):
         if super().match(value):
             return True
@@ -56,6 +85,11 @@ class IInl(EntityType):
 
 @dataclass(frozen=True, eq=True)
 class IBlk(EntityType):
+    """
+    The `Blk` pseudotype
+
+    - can be casted to `block`
+    """
     def match(self, value):
         if super().match(value):
             return True
@@ -67,6 +101,12 @@ class IBlk(EntityType):
 
 @dataclass(frozen=True, eq=True)
 class IRen(EntityType):
+    """
+    The `Ren` pseudotype
+
+    - something you can render as HTML
+    - can be `Inl` or `Blk`
+    """
     def match(self, value):
         if super().match(value):
             return True
@@ -78,6 +118,7 @@ class IRen(EntityType):
 
 @dataclass(frozen=True, eq=True)
 class TFunction(EntityType):
+    """The function type"""
     arg_types: Tuple[EntityType, ...]
     rest_type: Optional[EntityType]
     return_type: EntityType
@@ -103,6 +144,11 @@ class TFunction(EntityType):
 
 @dataclass(frozen=True, eq=True)
 class TUnion(EntityType):
+    """
+    Union type.
+
+    Used when one out of multiple types is expected or can be produced.
+    """
     variants: Tuple[EntityType, ...]
 
     def match(self, value):
