@@ -15,7 +15,7 @@ class EntityType:
     type of an object. For example, a value of type `inline` can be one of
     many different objects in `fnl.entities`.
     """
-    def match(self, value: e.Entity) -> bool:
+    def match(self, value: "e.Entity") -> bool:
         """Can a value be interpreted (casted into) this type?"""
         return value.ty == self or value.ty == TAny()
 
@@ -31,7 +31,7 @@ class TAny(EntityType):
     - can be casted from any type
     - can be casted into any type
     """
-    def match(self, value: e.Entity) -> bool:
+    def match(self, value: "e.Entity") -> bool:
         return True
 
     def signature(self) -> str:
@@ -62,7 +62,7 @@ class TInline(EntityType):
 @dataclass(frozen=True, eq=True)
 class TBlock(EntityType):
     """The `block` type -- a block HTML element"""
-    def signature(self):
+    def signature(self) -> str:
         return "block"
 
 
@@ -74,12 +74,12 @@ class IInl(EntityType):
     - can be `str`, `int`, or `inline`
     - can be casted to `inline`
     """
-    def match(self, value):
+    def match(self, value: "e.Entity") -> bool:
         if super().match(value):
             return True
         return hasattr(value, "render_inline")
 
-    def signature(self):
+    def signature(self) -> str:
         return "Inl"
 
 
@@ -90,12 +90,12 @@ class IBlk(EntityType):
 
     - can be casted to `block`
     """
-    def match(self, value):
+    def match(self, value: "e.Entity") -> bool:
         if super().match(value):
             return True
         return hasattr(value, "render_block")
 
-    def signature(self):
+    def signature(self) -> str:
         return "Blk"
 
 
@@ -107,12 +107,12 @@ class IRen(EntityType):
     - something you can render as HTML
     - can be `Inl` or `Blk`
     """
-    def match(self, value):
+    def match(self, value: "e.Entity") -> bool:
         if super().match(value):
             return True
         return IInl().match(value) or IBlk().match(value)
 
-    def signature(self):
+    def signature(self) -> str:
         return "Ren"
 
 
@@ -123,18 +123,18 @@ class TFunction(EntityType):
     rest_type: Optional[EntityType]
     return_type: EntityType
 
-    def match(self, value):
+    def match(self, value: "e.Entity") -> bool:
         if super().match(value):
             return True
         return (
             hasattr(value, "call")
-            and value.return_type_when_called_with(
+            and value.return_type_when_called_with(  # type: ignore
                 args=self.arg_types,
                 rest=self.rest_type,
             ) == self.return_type
         )
 
-    def signature(self):
+    def signature(self) -> str:
         args_repr = " ".join(t.signature() for t in self.arg_types)
         if self.rest_type is not None:
             args_repr += " ..." + self.rest_type.signature()
@@ -151,10 +151,10 @@ class TUnion(EntityType):
     """
     variants: Tuple[EntityType, ...]
 
-    def match(self, value):
+    def match(self, value: "e.Entity") -> bool:
         if super().match(value):
             return True
         return any(t.match(value) for t in self.variants)
 
-    def signature(self):
+    def signature(self) -> str:
         return "|".join(t.signature() for t in self.variants)
