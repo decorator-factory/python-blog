@@ -9,26 +9,33 @@ R = TypeVar("R", bound="HtmlRender")
 
 
 class HtmlRender:
+    """Represents a value that can be rendered as HTML."""
+
     def as_text(self) -> str:
+        """Render as HTML"""
         raise NotImplementedError
 
     def fmap(self: R, fn: Callable[[str], str]) -> R:
+        """Apply a transformation to the textual part of HTML"""
         raise NotImplementedError
 
 
 @dataclass
 class RawHtml(HtmlRender):
+    """Renders `content` as is (without escaping)"""
     content: str
 
     def as_text(self) -> str:
         return self.content
 
     def fmap(self, fn: Callable[[str], str]):
-        return RawHtml(fn(self.content))
+        # We can't know what parts of raw HTML are text, so do nothing
+        return self
 
 
 @dataclass
 class SafeHtml(HtmlRender):
+    """Renders the escaped version of `unsafe_content`."""
     unsafe_content: str
     _after_escape: Callable[[str], str] = staticmethod(lambda s: s)  # type: ignore
 
@@ -44,6 +51,13 @@ class SafeHtml(HtmlRender):
 
 @dataclass
 class HtmlTag(HtmlRender):
+    """
+    Renders an HTML tag named `tag` with options being `options`.
+    `options` is not sanitized -- make sure it's right.
+
+    >>> HtmlTag("b", 'class="c"', [RawHtml("hello"), RawHtml(" world")]).as_text()
+    '<b class="c">hello world</b>'
+    """
     tag: str
     options: str
     content: Sequence[HtmlRender]
@@ -65,6 +79,12 @@ class HtmlTag(HtmlRender):
 
 @dataclass
 class Concat(HtmlRender):
+    """
+    Renders multiple elements in order.
+
+    >>> Concat([RawHtml("hello"), RawHtml(" world")]).as_text()
+    'hello world'
+    """
     children: Sequence[HtmlRender]
 
     def as_text(self) -> str:
@@ -75,11 +95,20 @@ class Concat(HtmlRender):
 
 
 class Entity:
+    """
+    Base class for all expressions
+
+    An entity is renderable as an inline element if it has a `render_inline`
+    method, and renderable as a block element if it has a `render_block`
+    method.
+    """
     @property
-    def ty(self):
+    def ty(self) -> et.EntityType:
+        """Return the type to which the entity belongs"""
         return et.TAny()
 
     def render(self, runtime) -> HtmlRender:
+        """Render the entity as an HTML tree"""
         e = self.evaluate(runtime)
         if hasattr(e, "render_inline"):
             return e.render_inline(runtime) # type: ignore
@@ -88,11 +117,13 @@ class Entity:
         raise TypeError(f"Cannot render {e}")
 
     def evaluate(self, runtime) -> Entity:
+        """Evaluate an expression until it settles on a final value"""
         return self
 
 
 @dataclass(eq=True)
 class Name(Entity):
+    """Represents getting a global variable by its name"""
     name: str
 
     _cached: Optional[Entity] = None
@@ -112,6 +143,7 @@ class Name(Entity):
 
 
 class CallError(Exception):
+    """Error that occurs when evaluating an s-expression"""
     def __init__(self, msg: str, propagate: bool):
         self.msg = msg
         self.propagate = propagate
@@ -120,6 +152,7 @@ class CallError(Exception):
 
 @dataclass
 class Sexpr(Entity):
+    """Represents a function call"""
     fn: Entity
     args: Tuple[Entity, ...]
 
@@ -192,6 +225,7 @@ class String(Entity):
 
 @dataclass(frozen=True, eq=True)
 class InlineTag(Entity):
+    """Represents an inline HTML tag"""
     tag: str
     options: str
     children: Tuple[Entity, ...]
@@ -208,6 +242,7 @@ class InlineTag(Entity):
 
 @dataclass(frozen=True, eq=True)
 class BlockTag(Entity):
+    """Represents a block HTML tag"""
     tag: str
     options: str
     children: Tuple[Entity, ...]
@@ -224,6 +259,7 @@ class BlockTag(Entity):
 
 @dataclass(frozen=True, eq=True)
 class InlineRaw(Entity):
+    """Represents raw HTML source code which is rendered inline"""
     html: str
 
     ty = et.TInline()
@@ -234,6 +270,7 @@ class InlineRaw(Entity):
 
 @dataclass(frozen=True, eq=True)
 class BlockRaw(Entity):
+    """Represents raw HTML source code which is rendered as a block"""
     html: str
 
     ty = et.TInline()
@@ -244,6 +281,7 @@ class BlockRaw(Entity):
 
 @dataclass(frozen=True, eq=True)
 class InlineConcat(Entity):
+    """Represents a concatenation of multiple inline entities"""
     children: Tuple[Entity, ...]
 
     ty = et.TInline()
@@ -254,6 +292,7 @@ class InlineConcat(Entity):
 
 @dataclass(frozen=True, eq=True)
 class BlockConcat(Entity):
+    """Represents a concatenation of multiple entities of mixed kinds"""
     children: Tuple[Entity, ...]
 
     ty = et.TBlock()
@@ -264,6 +303,14 @@ class BlockConcat(Entity):
 
 @dataclass(frozen=True, eq=True)
 class Function(Entity):
+    """
+    Represents a function.
+
+    `overloads` is a mapping between a particular function signature and the
+    callable that should be called when that signature is matched.
+
+    For concrete examples, see `tests/test_entities.py`
+    """
     overloads: Dict[et.TFunction, Callable]
 
     @property
@@ -271,6 +318,11 @@ class Function(Entity):
         return et.TUnion(tuple(self.overloads.keys()))
 
     def call(self, *args):
+        """
+        Call the function with the given arguments.
+
+        If no overload matches the function, a TypeError is thrown.
+        """
         for (o, f) in self.overloads.items():
             if o.rest_type is None:
                 same_length = len(o.arg_types) == len(args)
