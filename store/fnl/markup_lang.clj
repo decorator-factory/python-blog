@@ -2,8 +2,16 @@
   (p
     "Inspired by X-expressions, I decided to take a stab at
     markup language design. It's not meant to be a replacement for HTML,
-    it's just a tool for rendering HTML. There's still a lot of work to do,
-    but it's already pretty useful, in my view.")
+    it's just a tool for rendering HTML to style a blog post. There's still a
+    lot of work to do, but it's already pretty useful, at least in my view.")
+
+  (horizontal-rule)
+  ((h 3)
+    "FNL")
+  ((h 4)
+    "FNL is Not Lisp")
+  (horizontal-rule)
+
   (p
     "The syntax of the language is based on S-expressions in lisp: to call
     a function " (mono "f") " with arguments " ((sepmap ", " mono) "x" "y" "z")
