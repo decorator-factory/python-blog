@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.staticfiles import StaticFiles
 
-import content_parser
+import fnl
 from .posts import Post
 
 
@@ -65,7 +65,7 @@ async def setup_sqlite_from_config():
         data = json.loads(await config.read())
         for i, post in enumerate(data["posts"]):
             async with aiofiles.open(Path("store") / post["path"]) as file:  # type: ignore
-                content = content_parser.html(await file.read())
+                content = fnl.html(await file.read())
             cursor = await conn.execute("""--sql
                 INSERT INTO posts (uid, title, content, tags, position) VALUES (?, ?, ?, ?, ?);
             """, (post["uid"], post["title"], content, post["tags"], i))

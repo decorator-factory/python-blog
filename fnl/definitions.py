@@ -1,7 +1,7 @@
 import json
 from typing import Dict
-import content_parser.entity_types as et
-import content_parser.entities as e
+import .entity_types as et
+import .entities as e
 
 
 BUILTINS: Dict[str, e.Entity] = {}
