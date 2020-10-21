@@ -1,8 +1,7 @@
 from __future__ import annotations
-import json
 from dataclasses import dataclass
 from typing import Callable, Dict, Sequence, TypeVar, Optional, Tuple
-from content_parser import entity_types as et
+from fnl import entity_types as et
 import html
 
 
