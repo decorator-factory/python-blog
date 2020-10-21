@@ -47,7 +47,7 @@ def parse(source: str) -> e.Entity:
     return parser.parse(source)  # type: ignore
 
 
-class ContentTypeError(TypeError):
+class FnlTypeError(TypeError):
     pass
 
 
@@ -64,4 +64,4 @@ def html(source: str, extensions: Iterable[Tuple[str, e.Entity]] = ()) -> str:
     except:
         raise
     # raise the exception without the internal traceback:
-    raise ContentTypeError(error)
+    raise FnlTypeError(error)
