@@ -6,12 +6,23 @@
     let selectedTag = '';
     let posts = [];
 
-    const filterPosts = (posts, tag) =>
-        tag === ""
-            ? posts
-            : tag.endsWith("*")
-                ? posts.filter(p => p.tags.some(t => t.startsWith(tag.slice(0, -1))))
-                : posts.filter(p => p.tags.includes(tag));
+    const filterPosts = (posts, tag) => {
+        tag = tag.toLowerCase();
+
+        if (tag === "")
+            return posts;
+
+        if (tag.startsWith("^"))
+            return posts.filter(p => p.title.toLowerCase().startsWith(tag.slice(1)));
+
+        if (tag.startsWith("~"))
+            return posts.filter(p => p.title.toLowerCase().includes(tag.slice(1)));
+
+        if (tag.endsWith("*"))
+            return posts.filter(p => p.tags.some(t => t.startsWith(tag.slice(0, -1))));
+
+         return posts.filter(p => p.tags.includes(tag))
+    };
 
 
     $: displayedPosts = filterPosts(posts, selectedTag);
@@ -41,10 +52,12 @@
 </header>
 <main>
     <div class="search">
-        Tag filter: <input type="text" bind:value={selectedTag}/><br/>
+        Filter: <input type="text" bind:value={selectedTag}/><br/>
         <ul>
-            <li>Simple tag search like 'python' works as expected</li>
-            <li>Putting a '*' at the end will match any tag that starts with 'python'</li>
+            <li>'python' searches for all posts tagged with 'python'</li>
+            <li>'python*' searches for all posts tagged with 'python', 'python-short', 'pythons' etc.</li>
+            <li>'^python' searches for all posts whose title starts with 'python'</li>
+            <li>'~python' searches for all posts whose title contains 'python'</li>
         </ul>
     </div>
     <div class="posts">
