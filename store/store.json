@@ -3,7 +3,7 @@
         {
             "uid": 3,
             "title": "A better markup language?",
-            "path": "markup_lang.clj",
+            "path": "fnl/markup_lang.clj",
             "tags": ["markup", "types"]
         },
         {
