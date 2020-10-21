@@ -4,7 +4,13 @@
             "uid": 3,
             "title": "A better markup language?",
             "path": "fnl/markup_lang.clj",
-            "tags": ["markup", "types"]
+            "tags": ["fnl"]
+        },
+        {
+            "uid": 10,
+            "title": "Using FNL",
+            "path": "fnl/using_fnl.clj",
+            "tags": ["fnl", "tutorial"]
         },
         {
             "uid": 4,
