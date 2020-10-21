@@ -5,9 +5,10 @@ from fnl import entity_types as et
 import html
 
 
-R = TypeVar("R", bound="Render")
+R = TypeVar("R", bound="HtmlRender")
 
-class Render:
+
+class HtmlRender:
     def as_text(self) -> str:
         raise NotImplementedError
 
@@ -16,7 +17,7 @@ class Render:
 
 
 @dataclass
-class RawHtml(Render):
+class RawHtml(HtmlRender):
     content: str
 
     def as_text(self) -> str:
@@ -27,7 +28,7 @@ class RawHtml(Render):
 
 
 @dataclass
-class SafeHtml(Render):
+class SafeHtml(HtmlRender):
     unsafe_content: str
     _after_escape: Callable[[str], str] = staticmethod(lambda s: s)  # type: ignore
 
@@ -42,10 +43,10 @@ class SafeHtml(Render):
 
 
 @dataclass
-class HtmlTag(Render):
+class HtmlTag(HtmlRender):
     tag: str
     options: str
-    content: Sequence[Render]
+    content: Sequence[HtmlRender]
 
     def as_text(self) -> str:
         options = "" if self.options == "" else " " + self.options
@@ -63,8 +64,8 @@ class HtmlTag(Render):
         )
 
 @dataclass
-class Concat(Render):
-    children: Sequence[Render]
+class Concat(HtmlRender):
+    children: Sequence[HtmlRender]
 
     def as_text(self) -> str:
         return "".join(r.as_text() for r in self.children)
@@ -78,7 +79,7 @@ class Entity:
     def ty(self):
         return et.TAny()
 
-    def render(self, runtime) -> Render:
+    def render(self, runtime) -> HtmlRender:
         e = self.evaluate(runtime)
         if hasattr(e, "render_inline"):
             return e.render_inline(runtime) # type: ignore
@@ -175,7 +176,7 @@ class Integer(Entity):
 
     ty = et.TInt()
 
-    def render_inline(self, runtime) -> Render:
+    def render_inline(self, runtime) -> HtmlRender:
         return RawHtml(str(self.value))
 
 
