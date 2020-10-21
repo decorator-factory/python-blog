@@ -1,4 +1,4 @@
-from content_parser import html
+from fnl import html
 
 
 def test_basic():

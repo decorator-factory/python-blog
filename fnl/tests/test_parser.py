@@ -1,6 +1,6 @@
-import content_parser
-import content_parser.entity_types as et
-import content_parser.entities as e
+import fnl
+import fnl.entity_types as et
+import fnl.entities as e
 
 
 def test_parser():
@@ -19,7 +19,7 @@ def test_parser():
         )
     """
 
-    ast = content_parser.parse(SOURCE)
+    ast = fnl.parse(SOURCE)
 
     assert ast == e.Sexpr(
         e.Name("$"),

@@ -1,5 +1,5 @@
-import content_parser.entity_types as et
-import content_parser.entities as e
+import fnl.entity_types as et
+import fnl.entities as e
 
 
 def test_function_with_fixed_signature():
