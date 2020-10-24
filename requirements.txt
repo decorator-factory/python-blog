@@ -2,5 +2,5 @@ uvicorn
 fastapi
 aiosqlite
 aiofiles
-lark-parser
 watchgod
+-e git+https://github.com/decorator-factory/python-fnl#egg=fnl
